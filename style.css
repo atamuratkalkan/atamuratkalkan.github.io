@@ -313,20 +313,16 @@ h2 {
   display: block;
 }
 
-.portfolio-section--photography .gallery {
-  grid-template-columns: repeat(12, minmax(0, 1fr));
+.section-introduction {
+  max-width: 620px;
+  margin: 26px 0 0;
+  color: var(--warm-gray);
+  font-size: 1rem;
+  line-height: 1.65;
 }
 
-.portfolio-section--photography .artwork--large {
-  grid-column: span 6;
-}
-
-.portfolio-section--photography .artwork--medium {
-  grid-column: span 4;
-}
-
-.portfolio-section--photography .artwork--small {
-  grid-column: span 3;
+.section-introduction + .gallery {
+  margin-top: 36px;
 }
 
 /* ==========================================================================
@@ -350,8 +346,7 @@ h2 {
   height: auto;
 }
 
-.about__portrait figcaption,
-.replacement-label {
+.about__portrait figcaption {
   color: var(--muted-bronze);
   font-size: 0.75rem;
   font-weight: 600;
@@ -372,10 +367,6 @@ h2 {
 
 .artist-statement p {
   margin: 0 0 1.25em;
-}
-
-.artist-statement .replacement-label {
-  margin-bottom: 18px;
 }
 
 .contact {
@@ -693,14 +684,6 @@ h2 {
     grid-column: span 5;
   }
 
-  .portfolio-section--photography .artwork--large {
-    grid-column: span 6;
-  }
-
-  .portfolio-section--photography .artwork--medium,
-  .portfolio-section--photography .artwork--small {
-    grid-column: span 4;
-  }
 }
 
 @media (max-width: 640px) {
@@ -742,18 +725,6 @@ h2 {
 
   .artwork:nth-child(even) {
     align-self: flex-end;
-  }
-
-  .portfolio-section--photography .artwork--large {
-    width: 90%;
-  }
-
-  .portfolio-section--photography .artwork--medium {
-    width: 78%;
-  }
-
-  .portfolio-section--photography .artwork--small {
-    width: 70%;
   }
 
   .about__layout {

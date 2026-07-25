@@ -114,40 +114,5 @@
       "width": 1400,
       "height": 1400
     }
-  ],
-  "photography": [
-    {
-      "id": "photography-placeholder-01",
-      "title": "Photography placeholder 01",
-      "year": "YEAR TO REPLACE",
-      "medium": "Photography",
-      "image": "images/photography/photography-placeholder-01.png",
-      "alt": "Neutral landscape placeholder for a photograph",
-      "size": "medium",
-      "width": 1600,
-      "height": 1100
-    },
-    {
-      "id": "photography-placeholder-02",
-      "title": "Photography placeholder 02",
-      "year": "YEAR TO REPLACE",
-      "medium": "Photography",
-      "image": "images/photography/photography-placeholder-02.png",
-      "alt": "Neutral portrait placeholder for a photograph",
-      "size": "small",
-      "width": 1100,
-      "height": 1500
-    },
-    {
-      "id": "photography-placeholder-03",
-      "title": "Photography placeholder 03",
-      "year": "YEAR TO REPLACE",
-      "medium": "Photography",
-      "image": "images/photography/photography-placeholder-03.png",
-      "alt": "Neutral wide-format placeholder for a photograph",
-      "size": "small",
-      "width": 1500,
-      "height": 1000
-    }
   ]
 }

@@ -55,12 +55,15 @@
     </script>
   </head>
   <body>
-    <a class="skip-link" href="#main-content">Skip to artwork</a>
+    <a class="skip-link" href="#animal-studies">Skip to artwork</a>
 
     <aside class="sidebar" aria-label="Primary">
       <a class="artist-name" href="#animal-studies">Ata Murat Kalkan</a>
       <nav class="primary-navigation" aria-label="Portfolio sections">
         <ul class="navigation-list">
+          <li data-nav-item="about">
+            <a href="#about" data-section-link="about">About</a>
+          </li>
           <li data-nav-item="animalStudies">
             <a href="#animal-studies" data-section-link="animalStudies">Animal Studies</a>
           </li>
@@ -69,12 +72,6 @@
           </li>
           <li data-nav-item="lightAndShadowStudies">
             <a href="#light-and-shadow-studies" data-section-link="lightAndShadowStudies">Light &amp; Shadow Studies</a>
-          </li>
-          <li data-nav-item="photography">
-            <a href="#photography" data-section-link="photography">Photography</a>
-          </li>
-          <li data-nav-item="about">
-            <a href="#about" data-section-link="about">About</a>
           </li>
           <li data-nav-item="contact">
             <a href="#contact" data-section-link="contact">Contact</a>
@@ -105,6 +102,9 @@
       </div>
       <nav aria-label="Portfolio sections">
         <ul class="navigation-list">
+          <li data-nav-item="about">
+            <a href="#about" data-section-link="about">About</a>
+          </li>
           <li data-nav-item="animalStudies">
             <a href="#animal-studies" data-section-link="animalStudies">Animal Studies</a>
           </li>
@@ -113,12 +113,6 @@
           </li>
           <li data-nav-item="lightAndShadowStudies">
             <a href="#light-and-shadow-studies" data-section-link="lightAndShadowStudies">Light &amp; Shadow Studies</a>
-          </li>
-          <li data-nav-item="photography">
-            <a href="#photography" data-section-link="photography">Photography</a>
-          </li>
-          <li data-nav-item="about">
-            <a href="#about" data-section-link="about">About</a>
           </li>
           <li data-nav-item="contact">
             <a href="#contact" data-section-link="contact">Contact</a>
@@ -129,13 +123,65 @@
 
     <main id="main-content">
       <section
+        class="portfolio-section about"
+        id="about"
+        data-page-section="about"
+        aria-labelledby="about-title"
+      >
+        <h1 id="about-title">About</h1>
+        <div class="about__layout">
+          <figure class="about__portrait">
+            <img
+              src="images/portrait/portrait-placeholder.png"
+              width="800"
+              height="1000"
+              loading="lazy"
+              decoding="async"
+              alt="Placeholder portrait to replace with a black-and-white portrait of Ata Murat Kalkan"
+            >
+            <figcaption>Portrait placeholder — replace this image.</figcaption>
+          </figure>
+          <div class="artist-statement">
+            <p>
+              I began painting as a series of colour experiments. At first, I was interested only in how
+              colours could interact, clash, and transform one another. Without aiming to create recognisable
+              images, I explored what paint itself could do.
+            </p>
+            <p>
+              I work exclusively with a painting knife. I enjoy the directness of the process and the physical
+              relationship it creates with the paint. Thick layers, blended colours and shifting reflections
+              of light allow each painting to develop through texture as much as through colour.
+            </p>
+            <p>
+              After spending time experimenting with paint, I found myself drawn to animals. I started painting
+              species that I realised I barely understood. The more I looked at them, the more I became aware
+              of how limited the human perspective can be when trying to understand other forms of life. The
+              list of animals I wanted to paint quickly became longer than I could ever finish.
+            </p>
+            <p>
+              Rather than aiming for realism, I try to translate my curiosity into colour, texture, and gesture.
+              My paintings are an attempt to look a little longer, to observe more carefully, and to imagine the
+              world from beyond a human point of view.
+            </p>
+            <p>
+              Alongside painting, I also enjoy photographing the world in black and white. While my paintings
+              are driven by colour, photography allows me to focus on light, form, and atmosphere from a
+              different perspective.
+            </p>
+            <p>I was born in Istanbul and am currently based in Berlin.</p>
+            <p>And yes, I never use brushes. They simply take far too long to clean.</p>
+          </div>
+        </div>
+      </section>
+
+      <section
         class="portfolio-section"
         id="animal-studies"
         data-page-section="animalStudies"
         data-gallery-section="animalStudies"
         aria-labelledby="animal-studies-title"
       >
-        <h1 id="animal-studies-title">Animal Studies</h1>
+        <h2 id="animal-studies-title">Animal Studies</h2>
         <div class="gallery" data-gallery="animalStudies"></div>
       </section>
 
@@ -158,52 +204,12 @@
         aria-labelledby="light-and-shadow-studies-title"
       >
         <h2 id="light-and-shadow-studies-title">Light &amp; Shadow Studies</h2>
+        <p class="section-introduction">
+          This is placeholder introductory text for the Light &amp; Shadow Studies section. These black-and-white
+          photographs explore light, form, and atmosphere from a quieter perspective. Replace this paragraph with
+          a short introduction to the photographic work.
+        </p>
         <div class="gallery" data-gallery="lightAndShadowStudies"></div>
-      </section>
-
-      <section
-        class="portfolio-section portfolio-section--photography"
-        id="photography"
-        data-page-section="photography"
-        data-gallery-section="photography"
-        aria-labelledby="photography-title"
-      >
-        <h2 id="photography-title">Photography</h2>
-        <div class="gallery" data-gallery="photography"></div>
-      </section>
-
-      <section
-        class="portfolio-section about"
-        id="about"
-        data-page-section="about"
-        aria-labelledby="about-title"
-      >
-        <h2 id="about-title">About</h2>
-        <div class="about__layout">
-          <figure class="about__portrait">
-            <img
-              src="images/portrait/portrait-placeholder.png"
-              width="800"
-              height="1000"
-              loading="lazy"
-              decoding="async"
-              alt="Placeholder portrait to replace with a black-and-white portrait of Ata Murat Kalkan"
-            >
-            <figcaption>Portrait placeholder — replace this image.</figcaption>
-          </figure>
-          <div class="artist-statement">
-            <p class="replacement-label">Artist statement placeholder — replace this text.</p>
-            <p>
-              Add the artist statement here. This space is intended for a concise account of the work,
-              its relationship to colour, observation, material, and process. Two or three short paragraphs
-              will preserve the quiet editorial rhythm of the page.
-            </p>
-            <p>
-              Keep the writing direct and personal. Avoid adding exhibition history, awards, representation,
-              or biographical details unless they are accurate and intentionally part of the statement.
-            </p>
-          </div>
-        </div>
       </section>
 
       <section

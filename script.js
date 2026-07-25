@@ -5,9 +5,9 @@
   const GALLERY_KEYS = [
     "animalStudies",
     "experimentsInColour",
-    "lightAndShadowStudies",
-    "photography"
+    "lightAndShadowStudies"
   ];
+  const shouldOpenAtAnimalStudies = window.location.hash === "";
 
   const galleryData = {};
   const galleryElements = new Map(
@@ -90,14 +90,7 @@
     return { id, title, year, medium, image, alt, size, width, height, sectionKey };
   }
 
-  function imageSizes(size, isPhotography) {
-    if (isPhotography) {
-      if (size === "large") {
-        return "(max-width: 640px) 90vw, (max-width: 900px) 46vw, 42vw";
-      }
-      return "(max-width: 640px) 78vw, (max-width: 900px) 30vw, 28vw";
-    }
-
+  function imageSizes(size) {
     if (size === "large") {
       return "(max-width: 640px) 100vw, (max-width: 900px) 92vw, 58vw";
     }
@@ -139,7 +132,7 @@
     image.src = artwork.image;
     image.alt = artwork.alt;
     image.decoding = "async";
-    image.sizes = imageSizes(artwork.size, artwork.sectionKey === "photography");
+    image.sizes = imageSizes(artwork.size);
 
     const isFirstMajorArtwork =
       artwork.sectionKey === "animalStudies" && index === 0;
@@ -402,6 +395,23 @@
     setActiveSection(current.dataset.pageSection);
   }
 
+  function positionInitialSection() {
+    if (
+      !shouldOpenAtAnimalStudies ||
+      (window.location.hash && window.location.hash !== "#animal-studies")
+    ) {
+      return;
+    }
+
+    const animalStudies = document.querySelector("#animal-studies");
+    if (!animalStudies) {
+      return;
+    }
+
+    window.history.replaceState(null, "", "#animal-studies");
+    animalStudies.scrollIntoView();
+  }
+
   let scrollFrame = null;
   window.addEventListener(
     "scroll",
@@ -500,6 +510,15 @@
     link.addEventListener("click", () => setActiveSection(link.dataset.sectionLink));
   });
 
-  setActiveSection("animalStudies");
+  const requestedSection = [...document.querySelectorAll("[data-page-section]")].find(
+    (section) => `#${section.id}` === window.location.hash
+  );
+
+  positionInitialSection();
+  if (shouldOpenAtAnimalStudies) {
+    window.addEventListener("load", positionInitialSection, { once: true });
+  }
+
+  setActiveSection(requestedSection?.dataset.pageSection || "animalStudies");
   loadArtworkData().finally(updateActiveSection);
 })();

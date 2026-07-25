@@ -7,7 +7,7 @@ The artwork catalogue is controlled by one file:
 
 `data/artworks.json`
 
-The website reads that file and creates all four galleries automatically. You do
+The website reads that file and creates all three galleries automatically. You do
 not need to edit `index.html`, `style.css`, or `script.js` when changing artwork.
 
 ## Before publishing
@@ -16,7 +16,6 @@ The first version contains clearly marked replacement content. Replace:
 
 - all placeholder artwork images and metadata;
 - `images/portrait/portrait-placeholder.png`;
-- the artist statement in `index.html`;
 - `replace-me@example.com` in `index.html`;
 - the Instagram placeholder in `index.html`, or remove it;
 - `images/favicon/favicon-placeholder.png`;
@@ -150,16 +149,17 @@ image.
 3. Update its image path if you also moved the image file.
 4. Check all commas.
 
-The four section names are:
+The three gallery section names are:
 
 ```json
 "animalStudies": [],
 "experimentsInColour": [],
-"lightAndShadowStudies": [],
-"photography": []
+"lightAndShadowStudies": []
 ```
 
 An empty section is automatically hidden from the page and navigation.
+Add photographic work to `"lightAndShadowStudies"` and store its image files in
+`images/light-and-shadow-studies/`.
 
 ## Replace the portrait
 
@@ -178,10 +178,17 @@ well.
 
 Open `index.html` and find:
 
-`Artist statement placeholder — replace this text.`
+`I began painting as a series of colour experiments.`
 
-Replace the placeholder paragraphs beneath it with the real statement. Remove the
-replacement-label paragraph when finished.
+Edit the paragraph elements inside the About section.
+
+## Change the Light & Shadow Studies introduction
+
+Open `index.html` and find:
+
+`This is placeholder introductory text for the Light & Shadow Studies section.`
+
+Replace the complete paragraph while keeping the `section-introduction` class.
 
 ## Change the email address
 
