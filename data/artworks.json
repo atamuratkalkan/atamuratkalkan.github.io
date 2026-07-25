@@ -1,0 +1,153 @@
+{
+  "animalStudies": [
+    {
+      "id": "animal-placeholder-01",
+      "title": "Animal study placeholder 01",
+      "year": "YEAR TO REPLACE",
+      "medium": "MEDIUM TO REPLACE",
+      "image": "images/animal-studies/animal-placeholder-01.png",
+      "alt": "Neutral colour-block placeholder for the first animal study artwork",
+      "size": "large",
+      "width": 1800,
+      "height": 1200
+    },
+    {
+      "id": "animal-placeholder-02",
+      "title": "Animal study placeholder 02",
+      "year": "YEAR TO REPLACE",
+      "medium": "MEDIUM TO REPLACE",
+      "image": "images/animal-studies/animal-placeholder-02.png",
+      "alt": "Neutral portrait-format placeholder for an animal study artwork",
+      "size": "small",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "id": "animal-placeholder-03",
+      "title": "Animal study placeholder 03",
+      "year": "YEAR TO REPLACE",
+      "medium": "MEDIUM TO REPLACE",
+      "image": "images/animal-studies/animal-placeholder-03.png",
+      "alt": "Neutral square placeholder for an animal study artwork",
+      "size": "medium",
+      "width": 1400,
+      "height": 1400
+    },
+    {
+      "id": "animal-placeholder-04",
+      "title": "Animal study placeholder 04",
+      "year": "YEAR TO REPLACE",
+      "medium": "MEDIUM TO REPLACE",
+      "image": "images/animal-studies/animal-placeholder-04.png",
+      "alt": "Neutral landscape-format placeholder for an animal study artwork",
+      "size": "medium",
+      "width": 1600,
+      "height": 1200
+    }
+  ],
+  "experimentsInColour": [
+    {
+      "id": "colour-placeholder-01",
+      "title": "Colour experiment placeholder 01",
+      "year": "YEAR TO REPLACE",
+      "medium": "MEDIUM TO REPLACE",
+      "image": "images/experiments-in-colour/colour-placeholder-01.png",
+      "alt": "Neutral wide-format colour-block placeholder",
+      "size": "large",
+      "width": 1800,
+      "height": 1100
+    },
+    {
+      "id": "colour-placeholder-02",
+      "title": "Colour experiment placeholder 02",
+      "year": "YEAR TO REPLACE",
+      "medium": "MEDIUM TO REPLACE",
+      "image": "images/experiments-in-colour/colour-placeholder-02.png",
+      "alt": "Neutral portrait-format colour-block placeholder",
+      "size": "small",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "id": "colour-placeholder-03",
+      "title": "Colour experiment placeholder 03",
+      "year": "YEAR TO REPLACE",
+      "medium": "MEDIUM TO REPLACE",
+      "image": "images/experiments-in-colour/colour-placeholder-03.png",
+      "alt": "Neutral square colour-block placeholder",
+      "size": "medium",
+      "width": 1400,
+      "height": 1400
+    }
+  ],
+  "lightAndShadowStudies": [
+    {
+      "id": "light-placeholder-01",
+      "title": "Light and shadow placeholder 01",
+      "year": "YEAR TO REPLACE",
+      "medium": "MEDIUM TO REPLACE",
+      "image": "images/light-and-shadow-studies/light-placeholder-01.png",
+      "alt": "Neutral landscape placeholder for a light and shadow study",
+      "size": "large",
+      "width": 1800,
+      "height": 1200
+    },
+    {
+      "id": "light-placeholder-02",
+      "title": "Light and shadow placeholder 02",
+      "year": "YEAR TO REPLACE",
+      "medium": "MEDIUM TO REPLACE",
+      "image": "images/light-and-shadow-studies/light-placeholder-02.png",
+      "alt": "Neutral portrait placeholder for a light and shadow study",
+      "size": "small",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "id": "light-placeholder-03",
+      "title": "Light and shadow placeholder 03",
+      "year": "YEAR TO REPLACE",
+      "medium": "MEDIUM TO REPLACE",
+      "image": "images/light-and-shadow-studies/light-placeholder-03.png",
+      "alt": "Neutral square placeholder for a light and shadow study",
+      "size": "medium",
+      "width": 1400,
+      "height": 1400
+    }
+  ],
+  "photography": [
+    {
+      "id": "photography-placeholder-01",
+      "title": "Photography placeholder 01",
+      "year": "YEAR TO REPLACE",
+      "medium": "Photography",
+      "image": "images/photography/photography-placeholder-01.png",
+      "alt": "Neutral landscape placeholder for a photograph",
+      "size": "medium",
+      "width": 1600,
+      "height": 1100
+    },
+    {
+      "id": "photography-placeholder-02",
+      "title": "Photography placeholder 02",
+      "year": "YEAR TO REPLACE",
+      "medium": "Photography",
+      "image": "images/photography/photography-placeholder-02.png",
+      "alt": "Neutral portrait placeholder for a photograph",
+      "size": "small",
+      "width": 1100,
+      "height": 1500
+    },
+    {
+      "id": "photography-placeholder-03",
+      "title": "Photography placeholder 03",
+      "year": "YEAR TO REPLACE",
+      "medium": "Photography",
+      "image": "images/photography/photography-placeholder-03.png",
+      "alt": "Neutral wide-format placeholder for a photograph",
+      "size": "small",
+      "width": 1500,
+      "height": 1000
+    }
+  ]
+}
