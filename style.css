@@ -330,15 +330,14 @@ h2 {
    ========================================================================== */
 
 .about__layout {
-  display: grid;
-  grid-template-columns: minmax(180px, 300px) minmax(0, 620px);
-  gap: clamp(48px, 7vw, 96px);
-  align-items: start;
+  display: flow-root;
   margin-top: 48px;
 }
 
 .about__portrait {
-  margin: 0;
+  float: left;
+  width: min(32vw, 300px);
+  margin: 0 clamp(32px, 5vw, 72px) 24px 0;
 }
 
 .about__portrait img {
@@ -360,7 +359,7 @@ h2 {
 }
 
 .artist-statement {
-  max-width: 620px;
+  max-width: none;
   font-size: clamp(1.0625rem, 1.5vw, 1.125rem);
   line-height: 1.65;
 }
@@ -726,16 +725,15 @@ h2 {
   .artwork:nth-child(even) {
     align-self: flex-end;
   }
+.about__layout {
+  margin-top: 38px;
+}
 
-  .about__layout {
-    grid-template-columns: 1fr;
-    gap: 42px;
-    margin-top: 38px;
-  }
-
-  .about__portrait {
-    width: min(66vw, 260px);
-  }
+.about__portrait {
+  float: none;
+  width: min(66vw, 260px);
+  margin: 0 0 42px;
+}
 
   .contact__details {
     margin-top: 34px;
