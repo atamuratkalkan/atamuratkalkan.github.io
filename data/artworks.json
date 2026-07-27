@@ -1,12 +1,12 @@
 {
   "animalStudies": [
     {
-      "id": "animal-placeholder-01",
-      "title": "Animal study placeholder 01",
-      "year": "YEAR TO REPLACE",
-      "medium": "MEDIUM TO REPLACE",
-      "image": "images/animal-studies/animal-placeholder-01.png",
-      "alt": "Neutral colour-block placeholder for the first animal study artwork",
+      "id": "swan",
+      "title": "Swan",
+      "year": "2026",
+      "medium": "Oil on paper",
+      "image": "images/animal-studies/swan.png",
+      "alt": "A stylized black and white swan painted with thick impasto oil paint.",
       "size": "large",
       "width": 1800,
       "height": 1200
