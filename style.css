@@ -553,11 +553,7 @@ h2 {
 }
 
 .lightbox__stage.is-zoomed {
-  cursor: grab;
-}
-
-.lightbox__stage.is-dragging {
-  cursor: grabbing;
+  cursor: zoom-out;
 }
 
 .lightbox__image {

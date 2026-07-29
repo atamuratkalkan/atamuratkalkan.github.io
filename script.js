@@ -9,6 +9,7 @@
   ];
   const MAX_VIEWER_SCALE = 8;
   const MIN_VIEWER_SCALE = 1;
+  const DETAIL_VIEW_SCALE = 2.75;
   const VIEWER_ZOOM_EPSILON = 0.01;
   const shouldOpenAtAnimalStudies = window.location.hash === "";
 
@@ -46,6 +47,8 @@
   let viewerGestureStart = null;
   let viewerGestureHadMultiplePointers = false;
   let suppressViewerClick = false;
+  let viewerHoverFrame = null;
+  let viewerHoverPosition = null;
   const viewerPointers = new Map();
 
   function warn(message, details) {
@@ -316,11 +319,11 @@
   function updateViewerControls() {
     const isZoomed = viewerIsZoomed();
     lightboxStage.classList.toggle("is-zoomed", isZoomed);
-    lightboxZoomToggle.textContent = isZoomed ? "Fit" : "100%";
+    lightboxZoomToggle.textContent = isZoomed ? "Fit" : "Zoom";
     lightboxZoomToggle.setAttribute("aria-pressed", String(isZoomed));
     lightboxZoomToggle.setAttribute(
       "aria-label",
-      isZoomed ? "Fit artwork to screen" : "View artwork at 100% size"
+      isZoomed ? "Fit artwork to screen" : "Open artwork detail view"
     );
   }
 
@@ -344,19 +347,12 @@
     viewerGestureStart = null;
     viewerGestureHadMultiplePointers = false;
     suppressViewerClick = false;
-    lightboxStage.classList.remove("is-dragging");
-    setViewerView(1, 0, 0, announce ? "Artwork fitted to screen." : "");
-  }
-
-  function actualSizeScale() {
-    if (!lightboxImage.complete || !lightboxImage.naturalWidth || !lightboxImage.offsetWidth) {
-      return 1;
+    viewerHoverPosition = null;
+    if (viewerHoverFrame !== null) {
+      window.cancelAnimationFrame(viewerHoverFrame);
+      viewerHoverFrame = null;
     }
-    return clamp(
-      lightboxImage.naturalWidth / lightboxImage.offsetWidth,
-      MIN_VIEWER_SCALE,
-      MAX_VIEWER_SCALE
-    );
+    setViewerView(1, 0, 0, announce ? "Artwork fitted to screen." : "");
   }
 
   function zoomViewerAt(scale, clientX, clientY, announcement = "") {
@@ -376,15 +372,9 @@
     setViewerView(nextScale, nextPanX, nextPanY, announcement);
   }
 
-  function toggleActualSize(clientX, clientY) {
+  function toggleDetailView(clientX, clientY) {
     if (viewerIsZoomed()) {
       resetViewer(true);
-      return;
-    }
-
-    const scale = actualSizeScale();
-    if (scale <= MIN_VIEWER_SCALE + VIEWER_ZOOM_EPSILON) {
-      announceViewerStatus("Artwork is already displayed at actual size.");
       return;
     }
 
@@ -395,7 +385,48 @@
     const zoomY = Number.isFinite(clientY)
       ? clientY
       : stageBounds.top + stageBounds.height / 2;
-    zoomViewerAt(scale, zoomX, zoomY, "Artwork displayed at actual size.");
+    zoomViewerAt(
+      DETAIL_VIEW_SCALE,
+      zoomX,
+      zoomY,
+      "Artwork detail view opened at 275% of fitted size."
+    );
+  }
+
+  function panViewerWithCursor(clientX, clientY) {
+    viewerHoverPosition = { x: clientX, y: clientY };
+    if (viewerHoverFrame !== null) {
+      return;
+    }
+
+    viewerHoverFrame = window.requestAnimationFrame(() => {
+      viewerHoverFrame = null;
+      if (!viewerHoverPosition || !viewerIsZoomed() || lightbox.hidden) {
+        return;
+      }
+
+      const stageBounds = lightboxStage.getBoundingClientRect();
+      if (!stageBounds.width || !stageBounds.height) {
+        return;
+      }
+
+      const relativeX = clamp(
+        (viewerHoverPosition.x - stageBounds.left) / stageBounds.width,
+        0,
+        1
+      );
+      const relativeY = clamp(
+        (viewerHoverPosition.y - stageBounds.top) / stageBounds.height,
+        0,
+        1
+      );
+      const limits = viewerPanLimits();
+      setViewerView(
+        viewerScale,
+        (0.5 - relativeX) * 2 * limits.x,
+        (0.5 - relativeY) * 2 * limits.y
+      );
+    });
   }
 
   function handleViewerWheel(event) {
@@ -426,7 +457,7 @@
   }
 
   function handleViewerPointerDown(event) {
-    if (event.pointerType === "mouse" && event.button !== 0) {
+    if (event.pointerType === "mouse") {
       return;
     }
 
@@ -447,15 +478,18 @@
       viewerGestureHadMultiplePointers = true;
       suppressViewerClick = true;
     }
-
-    if (viewerIsZoomed()) {
-      lightboxStage.classList.add("is-dragging");
-    }
   }
 
   function handleViewerPointerMove(event) {
     const pointer = viewerPointers.get(event.pointerId);
     if (!pointer) {
+      if (
+        event.pointerType === "mouse" &&
+        event.target === lightboxImage &&
+        viewerIsZoomed()
+      ) {
+        panViewerWithCursor(event.clientX, event.clientY);
+      }
       return;
     }
 
@@ -553,7 +587,6 @@
     }
 
     if (viewerPointers.size === 0) {
-      lightboxStage.classList.remove("is-dragging");
       viewerGestureStart = null;
       viewerGestureHadMultiplePointers = false;
     } else {
@@ -729,16 +762,20 @@
   lightboxClose.addEventListener("click", closeLightbox);
   lightboxPrevious.addEventListener("click", () => moveLightbox(-1));
   lightboxNext.addEventListener("click", () => moveLightbox(1));
-  lightboxZoomToggle.addEventListener("click", () => toggleActualSize());
+  lightboxZoomToggle.addEventListener("click", () => toggleDetailView());
   lightboxImage.addEventListener("load", () => {
     if (!lightbox.hidden) {
       setViewerView(viewerScale, viewerPanX, viewerPanY);
     }
   });
   lightboxImage.addEventListener("dragstart", (event) => event.preventDefault());
-  lightboxImage.addEventListener("dblclick", (event) => {
-    event.preventDefault();
-    toggleActualSize(event.clientX, event.clientY);
+  lightboxImage.addEventListener("click", (event) => {
+    event.stopPropagation();
+    if (suppressViewerClick) {
+      suppressViewerClick = false;
+      return;
+    }
+    toggleDetailView(event.clientX, event.clientY);
   });
   lightboxStage.addEventListener("wheel", handleViewerWheel, { passive: false });
   lightboxStage.addEventListener("pointerdown", handleViewerPointerDown);
