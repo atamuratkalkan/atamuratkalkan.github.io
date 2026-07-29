@@ -92,6 +92,18 @@ button {
   display: none !important;
 }
 
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
 .skip-link {
   position: fixed;
   z-index: 100;
@@ -465,7 +477,23 @@ h2 {
   padding: 68px 0 22px;
   background: var(--lightbox-background);
   color: var(--warm-paper);
-  touch-action: pan-y;
+}
+
+.lightbox__tools {
+  position: absolute;
+  z-index: 2;
+  top: 18px;
+  left: 22px;
+}
+
+.lightbox__zoom-toggle {
+  min-width: 48px;
+  padding: 8px;
+  border: 0;
+  background: transparent;
+  color: var(--warm-paper);
+  cursor: pointer;
+  font-size: 0.8125rem;
 }
 
 .lightbox__close {
@@ -506,16 +534,30 @@ h2 {
 
 .lightbox__previous:hover,
 .lightbox__next:hover,
-.lightbox__close:hover {
+.lightbox__close:hover,
+.lightbox__zoom-toggle:hover {
   color: var(--soft-linen);
 }
 
 .lightbox__stage {
+  position: relative;
   display: grid;
   grid-area: stage;
   min-width: 0;
   min-height: 0;
+  overflow: hidden;
   place-items: center;
+  cursor: zoom-in;
+  touch-action: none;
+  user-select: none;
+}
+
+.lightbox__stage.is-zoomed {
+  cursor: grab;
+}
+
+.lightbox__stage.is-dragging {
+  cursor: grabbing;
 }
 
 .lightbox__image {
@@ -524,6 +566,10 @@ h2 {
   height: auto;
   max-height: calc(100vh - 178px);
   object-fit: contain;
+  transform: translate3d(0, 0, 0) scale(1);
+  transform-origin: center;
+  will-change: transform;
+  -webkit-user-drag: none;
 }
 
 .lightbox__information {
@@ -725,15 +771,16 @@ h2 {
   .artwork:nth-child(even) {
     align-self: flex-end;
   }
-.about__layout {
-  margin-top: 38px;
-}
 
-.about__portrait {
-  float: none;
-  width: min(66vw, 260px);
-  margin: 0 0 42px;
-}
+  .about__layout {
+    margin-top: 38px;
+  }
+
+  .about__portrait {
+    float: none;
+    width: min(66vw, 260px);
+    margin: 0 0 42px;
+  }
 
   .contact__details {
     margin-top: 34px;
@@ -752,6 +799,16 @@ h2 {
       "information information" auto
       / 1fr 1fr;
     padding: 62px 16px 18px;
+  }
+
+  .lightbox__tools {
+    top: 14px;
+    left: 12px;
+  }
+
+  .lightbox__close {
+    top: 14px;
+    right: 12px;
   }
 
   .lightbox__image {
