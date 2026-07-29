@@ -12,15 +12,15 @@
       "height": 1200
     },
     {
-      "id": "animal-placeholder-02",
-      "title": "Animal study placeholder 02",
-      "year": "YEAR TO REPLACE",
-      "medium": "MEDIUM TO REPLACE",
-      "image": "images/animal-studies/animal-placeholder-02.png",
-      "alt": "Neutral portrait-format placeholder for an animal study artwork",
-      "size": "small",
-      "width": 1200,
-      "height": 1600
+      "id": "hedgehog",
+      "title": "Hedgehog",
+      "year": "2025",
+      "medium": "Oil on paper",
+      "image": "images/animal-studies/hegdehog.jpg",
+      "alt": "A stylized portrait of a hedgehog painted with thick impasto oil paint using a palette knife.",
+      "size": "large",
+      "width": 2000,
+      "height": 1487
     },
     {
       "id": "animal-placeholder-03",
