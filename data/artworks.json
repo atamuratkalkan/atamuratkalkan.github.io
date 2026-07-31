@@ -23,15 +23,15 @@
       "height": 1487
     },
     {
-      "id": "animal-placeholder-03",
-      "title": "Animal study placeholder 03",
-      "year": "YEAR TO REPLACE",
-      "medium": "MEDIUM TO REPLACE",
-      "image": "images/animal-studies/animal-placeholder-03.png",
-      "alt": "Neutral square placeholder for an animal study artwork",
-      "size": "medium",
-      "width": 1400,
-      "height": 1400
+      "id": "raven",
+      "title": "Raven",
+      "year": "2026",
+      "medium": "Oil on paper",
+      "image": "images/animal-studies/raven.jpg",
+      "alt": "A stylized portrait of a raven painted with thick impasto oil paint using a palette knife.",
+      "size": "large",
+      "width": 2750,
+      "height": 2750
     },
     {
       "id": "animal-placeholder-04",
