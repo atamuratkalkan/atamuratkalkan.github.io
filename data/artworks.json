@@ -82,37 +82,37 @@
   ],
   "lightAndShadowStudies": [
     {
-      "id": "light-placeholder-01",
-      "title": "Light and shadow placeholder 01",
-      "year": "YEAR TO REPLACE",
-      "medium": "MEDIUM TO REPLACE",
-      "image": "images/light-and-shadow-studies/light-placeholder-01.png",
-      "alt": "Neutral landscape placeholder for a light and shadow study",
+      "id": "rooftop-antennas.jpg",
+      "title": "Rooftop Antennas",
+      "year": "2024",
+      "medium": "Thessaloniki",
+      "image": "images/light-and-shadow-studies/rooftop-antennas.jpg",
+      "alt": "Black-and-white photograph of dense rooftop antennas rising above apartment buildings beneath a cloudy sky.",
       "size": "large",
-      "width": 1800,
-      "height": 1200
+      "width": 3456,
+      "height": 2304
     },
     {
-      "id": "light-placeholder-02",
-      "title": "Light and shadow placeholder 02",
-      "year": "YEAR TO REPLACE",
-      "medium": "MEDIUM TO REPLACE",
-      "image": "images/light-and-shadow-studies/light-placeholder-02.png",
-      "alt": "Neutral portrait placeholder for a light and shadow study",
-      "size": "small",
-      "width": 1200,
-      "height": 1600
-    },
-    {
-      "id": "light-placeholder-03",
-      "title": "Light and shadow placeholder 03",
-      "year": "YEAR TO REPLACE",
-      "medium": "MEDIUM TO REPLACE",
-      "image": "images/light-and-shadow-studies/light-placeholder-03.png",
-      "alt": "Neutral square placeholder for a light and shadow study",
+      "id": "dead-fish.jpg",
+      "title": "The Dead Fish",
+      "year": "2026",
+      "medium": "Istanbul",
+      "image": "images/light-and-shadow-studies/dead-fish.jpg",
+      "alt": "Black-and-white photograph of a dead fish lying on wet asphalt beside a painted road line.",
       "size": "medium",
-      "width": 1400,
-      "height": 1400
+      "width": 2161,
+      "height": 3241
+    },
+    {
+      "id": "shared-backbone.jpg",
+      "title": "Shared Backbone",
+      "year": "2026",
+      "medium": "Kalymnos Island",
+      "image": "images/light-and-shadow-studies/shared-backbone.jpg",
+      "alt": "Black-and-white photograph of a child and a cat sitting side by side, their backs facing the camera.",
+      "size": "medium",
+      "width": 3329,
+      "height": 2497
     }
   ]
 }
