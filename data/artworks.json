@@ -106,7 +106,7 @@
     {
       "id": "shared-backbone.jpg",
       "title": "Shared Backbone",
-      "year": "2026",
+      "year": "2025",
       "medium": "Kalymnos Island",
       "image": "images/light-and-shadow-studies/shared-backbone.jpg",
       "alt": "Black-and-white photograph of a child and a cat sitting side by side, their backs facing the camera.",
@@ -157,6 +157,17 @@
       "size": "medium",
       "width": 3456,
       "height": 2304
+    },
+    {
+      "id": "car-catamaran.JPG",
+      "title": "Parking Under a Catamaran",
+      "year": "2025",
+      "medium": "Leros Island",
+      "image": "images/light-and-shadow-studies/car-catamaran.JPG",
+      "alt": "Black-and-white photograph of a small car parked beneath a large catamaran in a boatyard, surrounded by sailboats on dry stands.",
+      "size": "medium",
+      "width": 4752,
+      "height": 3168
     }
   ]
 }
