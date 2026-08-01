@@ -135,6 +135,17 @@
       "size": "medium",
       "width": 2854,
       "height": 2078
+    },
+    {
+      "id": "baby-crow.JPG",
+      "title": "Waiting to Be Fed",
+      "year": "2023",
+      "medium": "Istanbul",
+      "image": "images/light-and-shadow-studies/baby-crow.JPG",
+      "alt": "A black-and-white close-up portrait of a young crow with its beak wide open, looking directly into the camera.",
+      "size": "small",
+      "width": 3456,
+      "height": 2304
     }
   ]
 }
