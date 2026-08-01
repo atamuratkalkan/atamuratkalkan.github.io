@@ -168,6 +168,39 @@
       "size": "medium",
       "width": 4752,
       "height": 3168
+    },
+    {
+      "id": "out-of-focus.JPG",
+      "title": "Out of Focus",
+      "year": "2024",
+      "medium": "Istanbul",
+      "image": "images/light-and-shadow-studies/out-of-focus.JPG",
+      "alt": "Black-and-white photograph of a street, out of focus only blurry lights and shades are visible.",
+      "size": "small",
+      "width": 3456,
+      "height": 2304
+    },
+    {
+      "id": "the-other-summit.JPG",
+      "title": "The Other Summit",
+      "year": "2024",
+      "medium": "Athens",
+      "image": "images/light-and-shadow-studies/the-other-summit.JPG",
+      "alt": "Black-and-white photograph of a landscape, a view from Acropolis.",
+      "size": "small",
+      "width": 3456,
+      "height": 2304
+    },
+    {
+      "id": "the-usual-suspects.png",
+      "title": "The Usual Suspects",
+      "year": "2024",
+      "medium": "Istanbul",
+      "image": "images/light-and-shadow-studies/the-usual-suspects.png",
+      "alt": "Black-and-white photograph of a bird family of five birds lined next to each other",
+      "size": "small",
+      "width": 3456,
+      "height": 2061
     }
   ]
 }
