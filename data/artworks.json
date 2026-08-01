@@ -113,6 +113,28 @@
       "size": "medium",
       "width": 3329,
       "height": 2497
+    },
+    {
+      "id": "boundaries-of-expression.png",
+      "title": "Boundaries of Expression",
+      "year": "2023",
+      "medium": "Bodrum",
+      "image": "images/light-and-shadow-studies/boundaries-of-expression.png",
+      "alt": "Testing the limits of human facial expression through three black-and-white portraits.",
+      "size": "large",
+      "width": 5000,
+      "height": 2200
+    },
+    {
+      "id": "boundaries-of-expression.png",
+      "title": "Boundaries of Expression",
+      "year": "2023",
+      "medium": "Bodrum",
+      "image": "images/light-and-shadow-studies/boundaries-of-expression.png",
+      "alt": "Testing the limits of human facial expression through three black-and-white portraits.",
+      "size": "large",
+      "width": 5000,
+      "height": 2200
     }
   ]
 }
