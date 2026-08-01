@@ -146,6 +146,17 @@
       "size": "small",
       "width": 3456,
       "height": 2304
+    },
+    {
+      "id": "sunset-or-sunrise.JPG",
+      "title": "Sunset or Sunrise?",
+      "year": "2024",
+      "medium": "Athens",
+      "image": "images/light-and-shadow-studies/sunset-or-sunrise.JPG",
+      "alt": "A black-and-white landscape of Piraeus Athens with a cross",
+      "size": "medium",
+      "width": 3456,
+      "height": 2304
     }
   ]
 }
