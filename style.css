@@ -237,9 +237,25 @@ h2 {
 .gallery {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: clamp(56px, 5vw, 72px) clamp(28px, 3vw, 36px);
+  gap: clamp(36px, 3.5vw, 48px) clamp(24px, 2.5vw, 32px);
   align-items: start;
   margin-top: 48px;
+}
+
+[data-gallery="lightAndShadowStudies"] {
+  display: block;
+  columns: 3;
+  column-gap: clamp(14px, 1.5vw, 20px);
+}
+
+[data-gallery="lightAndShadowStudies"] .artwork {
+  width: 100%;
+  margin-bottom: clamp(22px, 2.2vw, 30px);
+  break-inside: avoid;
+}
+
+[data-gallery="lightAndShadowStudies"] .artwork:last-child {
+  margin-bottom: 0;
 }
 
 .artwork {
@@ -713,6 +729,11 @@ h2 {
     column-gap: 24px;
   }
 
+  [data-gallery="lightAndShadowStudies"] {
+    columns: 2;
+    column-gap: 16px;
+  }
+
   .artwork--large {
     grid-column: span 12;
   }
@@ -748,8 +769,17 @@ h2 {
   .gallery {
     display: flex;
     flex-direction: column;
-    gap: 50px;
+    gap: 36px;
     margin-top: 38px;
+  }
+
+  [data-gallery="lightAndShadowStudies"] {
+    display: block;
+    columns: 1;
+  }
+
+  [data-gallery="lightAndShadowStudies"] .artwork {
+    margin-bottom: 28px;
   }
 
   .artwork {
