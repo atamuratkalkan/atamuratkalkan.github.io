@@ -19,10 +19,9 @@ The first version contains clearly marked replacement content. Replace:
 - `replace-me@example.com` in `index.html`;
 - the Instagram placeholder in `index.html`, or remove it;
 - `images/favicon/favicon-placeholder.png`;
-- `images/social/social-preview-placeholder.png`.
 
-Also update the portrait and social-image descriptions in the metadata near the
-top of `index.html` when the real files are added.
+Also update the portrait description in the metadata near the top of
+`index.html` when the real file is added.
 
 ## Important filename and JSON rules
 
@@ -224,14 +223,15 @@ If you use a different filename or format, update the favicon link near the top 
 
 ## Replace the social preview image
 
-Replace:
+The current social preview image is:
 
-`images/social/social-preview-placeholder.png`
+`images/social/ata-murat-kalkan-portfolio.png`
 
-with an image that is 1200 × 630 pixels and uses the same filename.
+To replace it later, upload the new image using the same filename or update the
+Open Graph and Twitter image paths near the top of `index.html`.
 
-Also replace its placeholder description in the Open Graph and Twitter metadata
-near the top of `index.html`.
+Keep the image dimensions and descriptive alt text in those metadata tags
+synchronized with the replacement image.
 
 ## Prepare artwork images
 
