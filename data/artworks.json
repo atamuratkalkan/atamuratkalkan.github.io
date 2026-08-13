@@ -34,15 +34,26 @@
       "height": 2075
     },
     {
-      "id": "animal-placeholder-04",
-      "title": "Animal study placeholder 04",
-      "year": "YEAR TO REPLACE",
-      "medium": "MEDIUM TO REPLACE",
-      "image": "images/animal-studies/animal-placeholder-04.png",
-      "alt": "Neutral landscape-format placeholder for an animal study artwork",
-      "size": "medium",
-      "width": 1600,
-      "height": 1200
+      "id": "whale.jpg",
+      "title": "The Whale",
+      "year": "2026",
+      "medium": "Oil on paper",
+      "image": "images/animal-studies/whale.jpg",
+      "alt": "A stylized portrait of a whale painted with thick impasto oil paint using a palette knife.",
+      "size": "large",
+      "width": 3202,
+      "height": 2336
+    },
+    {
+      "id": "fish.jpg",
+      "title": "Fish",
+      "year": "2026",
+      "medium": "Oil on paper",
+      "image": "images/animal-studies/fish.jpg",
+      "alt": "A stylized close-up portrait of a fish painted with thick impasto oil paint using a palette knife.",
+      "size": "large",
+      "width": 3330,
+      "height": 2468
     }
   ],
   "experimentsInColour": [
