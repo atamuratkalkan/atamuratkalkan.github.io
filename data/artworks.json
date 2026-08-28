@@ -67,6 +67,17 @@
       "height": 2468
     },
     {
+      "id": "Decapus",
+      "title": "The Decapus",
+      "year": "2025",
+      "medium": "Oil on paper",
+      "image": "images/animal-studies/decapus.jpg",
+      "alt": "A stylized close-up portrait of a octopus painted with thick impasto oil paint using a palette knife.",
+      "size": "large",
+      "width": 2760,
+      "height": 1935
+    },
+    {
       "id": "hyacinth-macaw.jpg",
       "title": "Hyacinth Macaw",
       "year": "2025",
