@@ -34,6 +34,17 @@
       "height": 2075
     },
     {
+      "id": "anglerfish",
+      "title": "Anglerfish",
+      "year": "2026",
+      "medium": "Oil on paper",
+      "image": "images/animal-studies/anglerfish.jpg",
+      "alt": "A stylized portrait of a anglerfish painted with thick impasto oil paint using a palette knife.",
+      "size": "large",
+      "width": 3201,
+      "height": 2176
+    },
+    {
       "id": "whale.jpg",
       "title": "The Whale",
       "year": "2026",
@@ -65,6 +76,17 @@
       "size": "large",
       "width": 2327,
       "height": 3231
+    },
+    {
+      "id": "nihilist penguin",
+      "title": "The Nihilist Penguin",
+      "year": "2026",
+      "medium": "Oil on paper (Inspired from Werner Herzog's 2007 documentary Encounters at the End of the World) ",
+      "image": "images/animal-studies/nihilist-penguin.JPG",
+      "alt": "A stylized portrait of a penguin, walking toward distant mountains painted with thick impasto oil paint and vivid colors using a palette knife.",
+      "size": "large",
+      "width": 2053,
+      "height": 3045
     }
   ],
   "experimentsInColour": [
