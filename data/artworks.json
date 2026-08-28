@@ -169,17 +169,6 @@
       "height": 2200
     },
     {
-      "id": "big-clean-mirror.JPG",
-      "title": "A Spotless Oversized Mirror",
-      "year": "2024",
-      "medium": "Athens",
-      "image": "images/light-and-shadow-studies/big-clean-mirror.JPG",
-      "alt": "A black-and-white family portrait photographed in a mirror reflection.",
-      "size": "medium",
-      "width": 2854,
-      "height": 2078
-    },
-    {
       "id": "the-wait.JPG",
       "title": "The Wait",
       "year": "2026",
@@ -266,6 +255,17 @@
       "size": "small",
       "width": 3456,
       "height": 2061
+    },
+    {
+      "id": "big-clean-mirror.JPG",
+      "title": "A Spotless Oversized Mirror",
+      "year": "2024",
+      "medium": "Athens",
+      "image": "images/light-and-shadow-studies/big-clean-mirror.JPG",
+      "alt": "A black-and-white family portrait photographed in a mirror reflection.",
+      "size": "medium",
+      "width": 2854,
+      "height": 2078
     }
   ]
 }
