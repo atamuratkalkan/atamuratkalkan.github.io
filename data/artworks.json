@@ -54,6 +54,17 @@
       "size": "large",
       "width": 3330,
       "height": 2468
+    },
+    {
+      "id": "hyacinth-macaw.jpg",
+      "title": "Hyacinth Macaw",
+      "year": "2025",
+      "medium": "Oil on paper",
+      "image": "images/animal-studies/hyacinth-macaw.jpg",
+      "alt": "A stylized portrait of a hyacinth macaw painted with thick impasto oil paint and vivid colors using a palette knife.",
+      "size": "large",
+      "width": 2327,
+      "height": 3231
     }
   ],
   "experimentsInColour": [
