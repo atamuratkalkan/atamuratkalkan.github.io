@@ -7,6 +7,9 @@
     "experimentsInColour",
     "lightAndShadowStudies"
   ];
+  const EMPTY_GALLERY_MESSAGES = {
+    experimentsInColour: "Coming soon."
+  };
   const MAX_VIEWER_SCALE = 8;
   const MIN_VIEWER_SCALE = 1;
   const DETAIL_VIEW_SCALE = 2.75;
@@ -202,6 +205,20 @@
     });
   }
 
+  function showEmptyGalleryMessage(sectionKey, gallery) {
+    const section = document.querySelector(`[data-gallery-section="${sectionKey}"]`);
+    if (section) {
+      section.hidden = false;
+    }
+    document.querySelectorAll(`[data-nav-item="${sectionKey}"]`).forEach((item) => {
+      item.hidden = false;
+    });
+
+    gallery.classList.remove("gallery");
+    gallery.classList.add("section-introduction");
+    gallery.textContent = EMPTY_GALLERY_MESSAGES[sectionKey];
+  }
+
   function renderGalleries(data) {
     GALLERY_KEYS.forEach((sectionKey) => {
       const gallery = galleryElements.get(sectionKey);
@@ -217,8 +234,17 @@
 
       galleryData[sectionKey] = artworks;
 
-      if (!gallery || artworks.length === 0) {
+      if (!gallery) {
         hideEmptySection(sectionKey);
+        return;
+      }
+
+      if (artworks.length === 0) {
+        if (EMPTY_GALLERY_MESSAGES[sectionKey]) {
+          showEmptyGalleryMessage(sectionKey, gallery);
+        } else {
+          hideEmptySection(sectionKey);
+        }
         return;
       }
 
