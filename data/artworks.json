@@ -73,9 +73,20 @@
       "medium": "Oil on paper",
       "image": "images/animal-studies/hyacinth-macaw.jpg",
       "alt": "A stylized portrait of a hyacinth macaw painted with thick impasto oil paint and vivid colors using a palette knife.",
-      "size": "large",
+      "size": "medium",
       "width": 2327,
       "height": 3231
+    },
+    {
+      "id": "Kiwi Bird",
+      "title": "The Flightless Kiwi",
+      "year": "2026",
+      "medium": "Oil on paper",
+      "image": "images/animal-studies/kiwi-bird.JPG",
+      "alt": "A stylized portrait of a kiwi bird painted with thick impasto oil paint and vivid colors using a palette knife.",
+      "size": "medium",
+      "width": 2109,
+      "height": 3000
     },
     {
       "id": "nihilist penguin",
@@ -84,7 +95,7 @@
       "medium": "Oil on paper (Inspired from Werner Herzog's 2007 documentary Encounters at the End of the World) ",
       "image": "images/animal-studies/nihilist-penguin.JPG",
       "alt": "A stylized portrait of a penguin, walking toward distant mountains painted with thick impasto oil paint and vivid colors using a palette knife.",
-      "size": "large",
+      "size": "small",
       "width": 2053,
       "height": 3045
     }
