@@ -89,41 +89,7 @@
       "height": 3045
     }
   ],
-  "experimentsInColour": [
-    {
-      "id": "colour-placeholder-01",
-      "title": "Colour experiment placeholder 01",
-      "year": "YEAR TO REPLACE",
-      "medium": "MEDIUM TO REPLACE",
-      "image": "images/experiments-in-colour/colour-placeholder-01.png",
-      "alt": "Neutral wide-format colour-block placeholder",
-      "size": "large",
-      "width": 1800,
-      "height": 1100
-    },
-    {
-      "id": "colour-placeholder-02",
-      "title": "Colour experiment placeholder 02",
-      "year": "YEAR TO REPLACE",
-      "medium": "MEDIUM TO REPLACE",
-      "image": "images/experiments-in-colour/colour-placeholder-02.png",
-      "alt": "Neutral portrait-format colour-block placeholder",
-      "size": "small",
-      "width": 1200,
-      "height": 1600
-    },
-    {
-      "id": "colour-placeholder-03",
-      "title": "Colour experiment placeholder 03",
-      "year": "YEAR TO REPLACE",
-      "medium": "MEDIUM TO REPLACE",
-      "image": "images/experiments-in-colour/colour-placeholder-03.png",
-      "alt": "Neutral square colour-block placeholder",
-      "size": "medium",
-      "width": 1400,
-      "height": 1400
-    }
-  ],
+  "experimentsInColour": [],
   "lightAndShadowStudies": [
     {
       "id": "rooftop-antennas.jpg",
