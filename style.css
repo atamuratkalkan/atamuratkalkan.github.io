@@ -243,19 +243,30 @@ h2 {
 }
 
 [data-gallery="lightAndShadowStudies"] {
-  display: block;
-  columns: 3;
-  column-gap: clamp(14px, 1.5vw, 20px);
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-flow: row;
+  grid-auto-rows: 2px;
+  gap: clamp(14px, 1.4vw, 18px) clamp(14px, 1.5vw, 20px);
+  align-items: start;
 }
 
 [data-gallery="lightAndShadowStudies"] .artwork {
-  width: 100%;
-  margin-bottom: clamp(22px, 2.2vw, 30px);
-  break-inside: avoid;
+  width: auto;
+  margin: 0;
+  break-inside: auto;
 }
 
-[data-gallery="lightAndShadowStudies"] .artwork:last-child {
-  margin-bottom: 0;
+[data-gallery="lightAndShadowStudies"] .artwork--large {
+  grid-column: span 6;
+}
+
+[data-gallery="lightAndShadowStudies"] .artwork--medium {
+  grid-column: span 4;
+}
+
+[data-gallery="lightAndShadowStudies"] .artwork--small {
+  grid-column: span 3;
 }
 
 .artwork {
@@ -730,8 +741,20 @@ h2 {
   }
 
   [data-gallery="lightAndShadowStudies"] {
-    columns: 2;
-    column-gap: 16px;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  [data-gallery="lightAndShadowStudies"] .artwork--large {
+    grid-column: span 7;
+  }
+
+  [data-gallery="lightAndShadowStudies"] .artwork--medium {
+    grid-column: span 5;
+  }
+
+  [data-gallery="lightAndShadowStudies"] .artwork--small {
+    grid-column: span 4;
   }
 
   .artwork--large {
@@ -774,12 +797,14 @@ h2 {
   }
 
   [data-gallery="lightAndShadowStudies"] {
-    display: block;
-    columns: 1;
+    display: flex;
+    gap: 32px;
   }
 
   [data-gallery="lightAndShadowStudies"] .artwork {
-    margin-bottom: 28px;
+    width: 100%;
+    margin: 0;
+    align-self: stretch;
   }
 
   .artwork {
