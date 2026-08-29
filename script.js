@@ -10,7 +10,6 @@
   const EMPTY_GALLERY_MESSAGES = {
     experimentsInColour: "Coming soon."
   };
-  const LIGHT_SHADOW_GALLERY_KEY = "lightAndShadowStudies";
   const MAX_VIEWER_SCALE = 8;
   const MIN_VIEWER_SCALE = 1;
   const DETAIL_VIEW_SCALE = 2.75;
@@ -53,7 +52,6 @@
   let suppressViewerClick = false;
   let viewerHoverFrame = null;
   let viewerHoverPosition = null;
-  let lightShadowLayoutFrame = null;
   const viewerPointers = new Map();
 
   function warn(message, details) {
@@ -134,9 +132,6 @@
       trigger.setAttribute("aria-label", `${artwork.title}: image unavailable`);
     }
     image.replaceWith(replacement);
-    if (artwork.sectionKey === LIGHT_SHADOW_GALLERY_KEY) {
-      scheduleLightShadowLayout();
-    }
   }
 
   function createArtworkElement(artwork, index) {
@@ -171,9 +166,6 @@
     image.addEventListener("error", () => handleBrokenImage(image, artwork), {
       once: true
     });
-    if (artwork.sectionKey === LIGHT_SHADOW_GALLERY_KEY) {
-      image.addEventListener("load", scheduleLightShadowLayout, { once: true });
-    }
     trigger.append(image);
 
     const caption = document.createElement("figcaption");
@@ -227,54 +219,6 @@
     gallery.textContent = EMPTY_GALLERY_MESSAGES[sectionKey];
   }
 
-  function layoutLightShadowGallery() {
-    const gallery = galleryElements.get(LIGHT_SHADOW_GALLERY_KEY);
-    if (!gallery) {
-      return;
-    }
-
-    const artworks = [...gallery.querySelectorAll(".artwork")];
-    artworks.forEach((artwork) => {
-      artwork.style.removeProperty("grid-row-end");
-    });
-
-    const galleryStyles = window.getComputedStyle(gallery);
-    if (galleryStyles.display !== "grid" || artworks.length === 0) {
-      return;
-    }
-
-    const rowHeight = Number.parseFloat(galleryStyles.gridAutoRows);
-    const rowGap = Number.parseFloat(galleryStyles.rowGap);
-    if (!Number.isFinite(rowHeight) || rowHeight <= 0) {
-      return;
-    }
-
-    const effectiveGap = Number.isFinite(rowGap) ? rowGap : 0;
-    const rowUnit = rowHeight + effectiveGap;
-    const artworkHeights = artworks.map(
-      (artwork) => artwork.getBoundingClientRect().height
-    );
-
-    artworks.forEach((artwork, index) => {
-      const rowSpan = Math.max(
-        1,
-        Math.ceil((artworkHeights[index] + effectiveGap) / rowUnit)
-      );
-      artwork.style.gridRowEnd = `span ${rowSpan}`;
-    });
-  }
-
-  function scheduleLightShadowLayout() {
-    if (lightShadowLayoutFrame !== null) {
-      return;
-    }
-
-    lightShadowLayoutFrame = window.requestAnimationFrame(() => {
-      lightShadowLayoutFrame = null;
-      layoutLightShadowGallery();
-    });
-  }
-
   function renderGalleries(data) {
     GALLERY_KEYS.forEach((sectionKey) => {
       const gallery = galleryElements.get(sectionKey);
@@ -309,9 +253,6 @@
         fragment.append(createArtworkElement(artwork, index));
       });
       gallery.replaceChildren(fragment);
-      if (sectionKey === LIGHT_SHADOW_GALLERY_KEY) {
-        scheduleLightShadowLayout();
-      }
     });
   }
 
@@ -907,7 +848,6 @@
     if (!lightbox.hidden) {
       setViewerView(viewerScale, viewerPanX, viewerPanY);
     }
-    scheduleLightShadowLayout();
     updateActiveSection();
   });
 
@@ -925,8 +865,5 @@
   }
 
   setActiveSection(requestedSection?.dataset.pageSection || "animalStudies");
-  if (document.fonts) {
-    document.fonts.ready.then(scheduleLightShadowLayout);
-  }
   loadArtworkData().finally(updateActiveSection);
 })();
