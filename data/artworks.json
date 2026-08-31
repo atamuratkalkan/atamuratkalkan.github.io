@@ -147,17 +147,6 @@
       "height": 2497
     },
     {
-      "id": "white-curves.JPG",
-      "title": "White Curves",
-      "year": "2025",
-      "medium": "Thessaloniki",
-      "image": "images/light-and-shadow-studies/white-curves.JPG",
-      "alt": "Black-and-white photograph of a white facade that has curvy balconies",
-      "size": "medium",
-      "width": 2304,
-      "height": 3456
-    },
-    {
       "id": "boundaries-of-expression.png",
       "title": "Boundaries of Expression",
       "year": "2023",
@@ -244,6 +233,17 @@
       "size": "small",
       "width": 3456,
       "height": 2061
+    },
+    {
+      "id": "white-curves.JPG",
+      "title": "White Curves",
+      "year": "2025",
+      "medium": "Thessaloniki",
+      "image": "images/light-and-shadow-studies/white-curves.JPG",
+      "alt": "Black-and-white photograph of a white facade that has curvy balconies",
+      "size": "medium",
+      "width": 2304,
+      "height": 3456
     },
     {
       "id": "the-wait.JPG",
