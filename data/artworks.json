@@ -147,6 +147,28 @@
       "height": 2497
     },
     {
+      "id": "Above The Monuments",
+      "title": "Above The Monuments",
+      "year": "2024",
+      "medium": "Athens",
+      "image": "images/light-and-shadow-studies/above-the-monuments.JPG",
+      "alt": "Black-and-white photograph of a pigeons sitting on a monument.",
+      "size": "large",
+      "width": 3456,
+      "height": 2304
+    },
+    {
+      "id": "Birds in C Major",
+      "title": "Birds in C Major",
+      "year": "2024",
+      "medium": "Athens",
+      "image": "images/light-and-shadow-studies/birds-in-c-major.JPG",
+      "alt": "Black-and-white photograph of a pigeons sitting on a wire.",
+      "size": "small",
+      "width": 3456,
+      "height": 2304
+    },
+    {
       "id": "boundaries-of-expression.png",
       "title": "Boundaries of Expression",
       "year": "2023",
