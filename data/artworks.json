@@ -103,7 +103,7 @@
       "id": "nihilist penguin",
       "title": "The Nihilist Penguin",
       "year": "2026",
-      "medium": "Oil on paper (Inspired from Werner Herzog's 2007 documentary Encounters at the End of the World) ",
+      "medium": "Oil on paper (Inspired from Werner Herzog's 2007 documentary: Encounters at the End of the World) ",
       "image": "images/animal-studies/nihilist-penguin.JPG",
       "alt": "A stylized portrait of a penguin, walking toward distant mountains painted with thick impasto oil paint and vivid colors using a palette knife.",
       "size": "small",
@@ -244,6 +244,17 @@
       "size": "medium",
       "width": 3456,
       "height": 2304
+    },
+    {
+      "id": "Wanderer Above the Sea of Stone",
+      "title": "Wanderer Above the Sea of Stone",
+      "year": "2024",
+      "medium": "Cappadocia",
+      "image": "images/light-and-shadow-studies/kapadokya-köpek.jpg",
+      "alt": "Black-and-white photograph of a dog looking to a landscape of Cappadocia.",
+      "size": "medium",
+      "width": 1440,
+      "height": 960
     },
     {
       "id": "the-usual-suspects.png",
