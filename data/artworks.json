@@ -56,15 +56,15 @@
       "height": 2336
     },
     {
-      "id": "fish.jpg",
+      "id": "the-fish.jpg",
       "title": "Fish",
       "year": "2026",
       "medium": "Oil on paper",
-      "image": "images/animal-studies/fish.jpg",
+      "image": "images/animal-studies/the-fish.jpg",
       "alt": "A stylized close-up portrait of a fish painted with thick impasto oil paint using a palette knife.",
       "size": "large",
-      "width": 3330,
-      "height": 2468
+      "width": 2800,
+      "height": 2002
     },
     {
       "id": "Decapus",
