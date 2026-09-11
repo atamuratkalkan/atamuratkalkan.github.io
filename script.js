@@ -660,7 +660,7 @@
     }
     resetViewer();
     lightbox.hidden = true;
-    lightboxImage.src = "images/favicon/favicon-placeholder.png";
+    lightboxImage.removeAttribute("src");
     lightboxImage.alt = "";
     lightboxStatus.textContent = "";
     unlockPage();
