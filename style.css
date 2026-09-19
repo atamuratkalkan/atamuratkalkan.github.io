@@ -365,7 +365,7 @@ h2 {
 .about__portrait {
   float: left;
   width: min(32vw, 300px);
-  margin: 0 clamp(32px, 5vw, 72px) 24px 0;
+  margin: 0 clamp(20px, 3vw, 40px) 24px 0;
 }
 
 .about__portrait img {
@@ -805,7 +805,7 @@ h2 {
   .about__portrait {
     float: none;
     width: min(66vw, 260px);
-    margin: 0 0 42px;
+    margin: 0 0 28px;
   }
 
   .contact__details {
