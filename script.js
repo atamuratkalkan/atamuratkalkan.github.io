@@ -86,9 +86,16 @@
 
     const title = cleanText(item.title) || "TITLE TO REPLACE";
     const year = cleanText(item.year) || "YEAR TO REPLACE";
-    const medium = cleanText(item.medium) || "MEDIUM TO REPLACE";
+    const isPhoto = sectionKey === "lightAndShadowStudies";
+    const medium = isPhoto
+      ? cleanText(item.medium)
+      : cleanText(item.medium) || "MEDIUM TO REPLACE";
 
-    if (!cleanText(item.title) || !cleanText(item.year) || !cleanText(item.medium)) {
+    if (
+      !cleanText(item.title) ||
+      !cleanText(item.year) ||
+      (!isPhoto && !cleanText(item.medium))
+    ) {
       warn(`${id} has missing display information; replacement text is being shown.`);
     }
 
@@ -178,13 +185,11 @@
     const metadata = document.createElement("p");
     metadata.className = "artwork__metadata";
 
-    const year = document.createElement("span");
-    year.textContent = artwork.year;
-
-    const medium = document.createElement("span");
-    medium.textContent = artwork.medium;
-
-    metadata.append(year, medium);
+    [artwork.year, artwork.medium].filter(Boolean).forEach((value) => {
+      const metadataLine = document.createElement("span");
+      metadataLine.textContent = value;
+      metadata.append(metadataLine);
+    });
     caption.append(title, metadata);
     figure.append(trigger, caption);
 
@@ -634,7 +639,9 @@
     lightboxImage.src = artwork.image;
     lightboxImage.alt = artwork.alt;
     lightboxTitle.textContent = artwork.title;
-    lightboxMetadata.textContent = `${artwork.year} · ${artwork.medium}`;
+    lightboxMetadata.textContent = [artwork.year, artwork.medium]
+      .filter(Boolean)
+      .join(" · ");
 
     const hasMultiple = artworks.length > 1;
     lightboxPrevious.hidden = !hasMultiple;
