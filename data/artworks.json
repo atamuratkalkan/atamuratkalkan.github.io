@@ -160,7 +160,7 @@
       "year": "Athens · 2024",
       "image": "images/light-and-shadow-studies/above-the-monuments.JPG",
       "alt": "Black-and-white photograph of a pigeons sitting on a monument.",
-      "size": "large",
+      "size": "medium",
       "width": 3456,
       "height": 2304
     },
@@ -180,7 +180,7 @@
       "year": "Athens · 2024",
       "image": "images/light-and-shadow-studies/birds-in-c-major.JPG",
       "alt": "Black-and-white photograph of a pigeons sitting on a wire.",
-      "size": "medium",
+      "size": "small",
       "width": 3456,
       "height": 2304
     },
@@ -190,7 +190,7 @@
       "year": "Bodrum · 2023",
       "image": "images/light-and-shadow-studies/boundaries-of-expression.png",
       "alt": "Testing the limits of human facial expression through three black-and-white portraits.",
-      "size": "large",
+      "size": "small",
       "width": 5000,
       "height": 2200
     },
@@ -200,7 +200,7 @@
       "year": "Leros Island · 2024",
       "image": "images/light-and-shadow-studies/white-pieces-rehearsing-the-endgame.JPG",
       "alt": "A black-and-white landscape of a marine full of white boats.",
-      "size": "large",
+      "size": "medium",
       "width": 4752,
       "height": 3168
     },
@@ -210,7 +210,7 @@
       "year": "Istanbul · 2023",
       "image": "images/light-and-shadow-studies/baby-crow.JPG",
       "alt": "A black-and-white close-up portrait of a young crow with its beak wide open, looking directly into the camera.",
-      "size": "small",
+      "size": "medium",
       "width": 3456,
       "height": 2304
     },
@@ -230,7 +230,7 @@
       "year": "Leros Island · 2025",
       "image": "images/light-and-shadow-studies/car-catamaran.JPG",
       "alt": "Black-and-white photograph of a small car parked beneath a large catamaran in a boatyard, surrounded by sailboats on dry stands.",
-      "size": "medium",
+      "size": "large",
       "width": 4752,
       "height": 3168
     },
@@ -260,7 +260,7 @@
       "year": "Cappadocia · 2024",
       "image": "images/light-and-shadow-studies/wanderer-above-the-sea-of-stone.jpg",
       "alt": "Black-and-white photograph of a dog looking to a landscape of Cappadocia.",
-      "size": "medium",
+      "size": "small",
       "width": 1440,
       "height": 960
     },
@@ -300,7 +300,7 @@
       "year": "Istanbul · 2026",
       "image": "images/light-and-shadow-studies/the-wait.JPG",
       "alt": "Black-and-white close-up photograph of a pug lying flat on the floor with its head resting between its front paws.",
-      "size": "large",
+      "size": "medium",
       "width": 4056,
       "height": 2426
     },
@@ -310,7 +310,7 @@
       "year": "Athens · 2024",
       "image": "images/light-and-shadow-studies/big-clean-mirror.JPG",
       "alt": "A black-and-white family portrait photographed in a mirror reflection.",
-      "size": "medium",
+      "size": "small",
       "width": 2854,
       "height": 2078
     }
