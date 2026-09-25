@@ -242,18 +242,20 @@ h2 {
   margin-top: 48px;
 }
 
-[data-gallery="lightAndShadowStudies"] {
-  position: relative;
-  display: block;
+.gallery[data-gallery="lightAndShadowStudies"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: flex-start;
   width: 100%;
 }
 
-[data-gallery="lightAndShadowStudies"] .artwork {
-  position: absolute;
+.gallery[data-gallery="lightAndShadowStudies"] .artwork {
+  flex: 0 0 auto;
   visibility: hidden;
 }
 
-[data-gallery="lightAndShadowStudies"].photo-mosaic--ready .artwork {
+.gallery[data-gallery="lightAndShadowStudies"].photo-justified--ready .artwork {
   visibility: visible;
 }
 
@@ -743,21 +745,16 @@ h2 {
 }
 
 @media (max-width: 699px) {
-  [data-gallery="lightAndShadowStudies"] {
+  .gallery[data-gallery="lightAndShadowStudies"] {
     display: flex;
-    height: auto !important;
     flex-direction: column;
+    flex-wrap: nowrap;
     gap: 28px;
   }
 
-  [data-gallery="lightAndShadowStudies"] .artwork {
-    position: static;
+  .gallery[data-gallery="lightAndShadowStudies"] .artwork {
     width: 100% !important;
     visibility: visible;
-    align-self: stretch;
-  }
-
-  [data-gallery="lightAndShadowStudies"] .artwork:nth-child(even) {
     align-self: stretch;
   }
 }
