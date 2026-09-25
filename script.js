@@ -14,6 +14,51 @@
   const MIN_VIEWER_SCALE = 1;
   const DETAIL_VIEW_SCALE = 2.75;
   const VIEWER_ZOOM_EPSILON = 0.01;
+  const PHOTO_MOSAIC_SECTION = "lightAndShadowStudies";
+  const PHOTO_MOSAIC_GAP = 18;
+  const PHOTO_MOSAIC_MOBILE_MAX = 699;
+  const PHOTO_MOSAIC_DESKTOP_MIN = 1100;
+  const PHOTO_MOSAIC_LAYOUTS = {
+    desktop: {
+      columns: 12,
+      distinction: {
+        large: { minimum: 8, maximum: 9 },
+        medium: { minimum: 6, maximum: 7 },
+        small: { minimum: 3, maximum: 5 }
+      },
+      sizes: {
+        large: { minimum: 7, preferred: 8, maximum: 9 },
+        medium: { minimum: 5, preferred: 6, maximum: 7 },
+        small: { minimum: 3, preferred: 4, maximum: 5 }
+      }
+    },
+    tablet: {
+      columns: 8,
+      distinction: {
+        large: { minimum: 5, maximum: 5 },
+        medium: { minimum: 4, maximum: 4 },
+        small: { minimum: 3, maximum: 3 }
+      },
+      sizes: {
+        large: { minimum: 5, preferred: 5, maximum: 6 },
+        medium: { minimum: 4, preferred: 4, maximum: 5 },
+        small: { minimum: 3, preferred: 3, maximum: 3 }
+      }
+    },
+    compact: {
+      columns: 5,
+      distinction: {
+        large: { minimum: 5, maximum: 5 },
+        medium: { minimum: 3, maximum: 3 },
+        small: { minimum: 2, maximum: 2 }
+      },
+      sizes: {
+        large: { minimum: 5, preferred: 5, maximum: 5 },
+        medium: { minimum: 3, preferred: 3, maximum: 3 },
+        small: { minimum: 2, preferred: 2, maximum: 2 }
+      }
+    }
+  };
   const shouldOpenAtAnimalStudies = window.location.hash === "";
 
   const galleryData = {};
@@ -52,6 +97,10 @@
   let suppressViewerClick = false;
   let viewerHoverFrame = null;
   let viewerHoverPosition = null;
+  let photoMosaicFrame = null;
+  let photoMosaicObserver = null;
+  let observedPhotoMosaicWidth = null;
+  let photoMosaicFontWatchStarted = false;
   const viewerPointers = new Map();
 
   function warn(message, details) {
@@ -124,6 +173,322 @@
     return "(max-width: 640px) 90vw, (max-width: 900px) 46vw, 43vw";
   }
 
+  function photoMosaicSpanOptions(size, layout) {
+    const rule = layout.sizes[size];
+    // Start from the requested range, then narrow each responsive profile
+    // just enough to preserve a clear large > medium > small hierarchy.
+    const distinction = layout.distinction[size];
+    const options = [];
+
+    const minimum = Math.max(rule.minimum, distinction.minimum);
+    const maximum = Math.min(rule.maximum, distinction.maximum);
+    for (let span = minimum; span <= maximum; span += 1) {
+      options.push(span);
+    }
+
+    return options.sort((first, second) => {
+      const firstAdjustment = Math.abs(first - rule.preferred);
+      const secondAdjustment = Math.abs(second - rule.preferred);
+      return firstAdjustment - secondAdjustment || first - second;
+    });
+  }
+
+  function photoMosaicHierarchyIsValid(artworks, spans) {
+    const importance = { small: 1, medium: 2, large: 3 };
+
+    for (let first = 0; first < artworks.length; first += 1) {
+      for (let second = first + 1; second < artworks.length; second += 1) {
+        const firstImportance = importance[artworks[first].size];
+        const secondImportance = importance[artworks[second].size];
+
+        if (firstImportance > secondImportance && spans[first] <= spans[second]) {
+          return false;
+        }
+        if (secondImportance > firstImportance && spans[second] <= spans[first]) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  function findPhotoMosaicGroup(artworks, startIndex, count, layout) {
+    const group = artworks.slice(startIndex, startIndex + count);
+    if (group.length !== count) {
+      return null;
+    }
+
+    let best = null;
+
+    function visit(index, spans, total, adjustment) {
+      if (total > layout.columns) {
+        return;
+      }
+
+      if (index === group.length) {
+        if (
+          total !== layout.columns ||
+          !photoMosaicHierarchyIsValid(group, spans)
+        ) {
+          return;
+        }
+
+        if (
+          !best ||
+          adjustment < best.adjustment ||
+          (adjustment === best.adjustment && spans.join("") < best.spans.join(""))
+        ) {
+          best = { spans: [...spans], adjustment };
+        }
+        return;
+      }
+
+      const artwork = group[index];
+      const rule = layout.sizes[artwork.size];
+      photoMosaicSpanOptions(artwork.size, layout).forEach((span) => {
+        visit(
+          index + 1,
+          [...spans, span],
+          total + span,
+          adjustment + Math.abs(span - rule.preferred)
+        );
+      });
+    }
+
+    visit(0, [], 0, 0);
+    return best;
+  }
+
+  function planPhotoMosaicSpans(artworks, layout) {
+    const spans = [];
+    let index = 0;
+
+    while (index < artworks.length) {
+      let bestGroup = null;
+
+      // Prefer adjacent pairs or trios that fill the grid with the least
+      // possible deviation from their requested size.
+      [2, 3].forEach((count) => {
+        const candidate = findPhotoMosaicGroup(artworks, index, count, layout);
+        if (
+          candidate &&
+          (!bestGroup ||
+            candidate.adjustment < bestGroup.adjustment ||
+            (candidate.adjustment === bestGroup.adjustment && count > bestGroup.count))
+        ) {
+          bestGroup = { ...candidate, count };
+        }
+      });
+
+      if (bestGroup) {
+        spans.push(...bestGroup.spans);
+        index += bestGroup.count;
+        continue;
+      }
+
+      spans.push(layout.sizes[artworks[index].size].preferred);
+      index += 1;
+    }
+
+    return spans;
+  }
+
+  function photoMosaicCardsOverlap(
+    column,
+    span,
+    top,
+    height,
+    placement
+  ) {
+    const overlapsHorizontally =
+      column < placement.column + placement.span &&
+      column + span > placement.column;
+    const overlapsVertically =
+      top < placement.top + placement.height + PHOTO_MOSAIC_GAP &&
+      top + height + PHOTO_MOSAIC_GAP > placement.top;
+
+    return overlapsHorizontally && overlapsVertically;
+  }
+
+  function placePhotoMosaicCard(
+    span,
+    height,
+    placements,
+    previousPlacement,
+    columnCount
+  ) {
+    const candidateTops = new Set([0]);
+    // A later card may backfill beside either of the previous two cards,
+    // which closes local holes without broadly scrambling reading order.
+    const readingOrderFloor =
+      placements.length > 1 ? placements.at(-2).top : 0;
+    candidateTops.add(readingOrderFloor);
+    placements.forEach((placement) => {
+      candidateTops.add(placement.top + placement.height + PHOTO_MOSAIC_GAP);
+    });
+
+    const orderedTops = [...candidateTops].sort((first, second) => first - second);
+    let best = null;
+
+    orderedTops.forEach((top) => {
+      if (top + 0.5 < readingOrderFloor) {
+        return;
+      }
+
+      for (let column = 0; column <= columnCount - span; column += 1) {
+        const continuesCurrentRow =
+          previousPlacement && Math.abs(top - previousPlacement.top) < 0.5;
+        if (
+          continuesCurrentRow &&
+          column < previousPlacement.column + previousPlacement.span
+        ) {
+          continue;
+        }
+
+        const collides = placements.some((placement) =>
+          photoMosaicCardsOverlap(column, span, top, height, placement)
+        );
+        if (collides) {
+          continue;
+        }
+
+        if (
+          !best ||
+          top < best.top - 0.5 ||
+          (Math.abs(top - best.top) < 0.5 && column < best.column)
+        ) {
+          best = { column, span, top, height };
+        }
+      }
+    });
+
+    if (best) {
+      return best;
+    }
+
+    const top = placements.reduce(
+      (maximum, placement) =>
+        Math.max(maximum, placement.top + placement.height + PHOTO_MOSAIC_GAP),
+      0
+    );
+    return { column: 0, span, top, height };
+  }
+
+  function resetPhotoMosaic(gallery) {
+    gallery.style.removeProperty("height");
+    gallery.classList.add("photo-mosaic--ready");
+    gallery.querySelectorAll(".artwork").forEach((card) => {
+      card.style.removeProperty("width");
+      card.style.removeProperty("left");
+      card.style.removeProperty("top");
+      delete card.dataset.mosaicSpan;
+    });
+  }
+
+  function layoutPhotoMosaic() {
+    const gallery = galleryElements.get(PHOTO_MOSAIC_SECTION);
+    const artworks = galleryData[PHOTO_MOSAIC_SECTION] || [];
+    if (!gallery || artworks.length === 0) {
+      return;
+    }
+
+    if (window.innerWidth <= PHOTO_MOSAIC_MOBILE_MAX) {
+      resetPhotoMosaic(gallery);
+      return;
+    }
+
+    const cards = [...gallery.querySelectorAll(".artwork")];
+    if (cards.length !== artworks.length || gallery.clientWidth <= 0) {
+      return;
+    }
+
+    const galleryWidth = gallery.clientWidth;
+    const layout =
+      galleryWidth < 650
+        ? PHOTO_MOSAIC_LAYOUTS.compact
+        : window.innerWidth >= PHOTO_MOSAIC_DESKTOP_MIN
+          ? PHOTO_MOSAIC_LAYOUTS.desktop
+          : PHOTO_MOSAIC_LAYOUTS.tablet;
+    const spans = planPhotoMosaicSpans(artworks, layout);
+    const columnWidth =
+      (galleryWidth - PHOTO_MOSAIC_GAP * (layout.columns - 1)) /
+      layout.columns;
+
+    cards.forEach((card, index) => {
+      const span = spans[index];
+      const width = columnWidth * span + PHOTO_MOSAIC_GAP * (span - 1);
+      card.style.width = `${width}px`;
+      card.style.left = "0";
+      card.style.top = "0";
+      card.dataset.mosaicSpan = String(span);
+    });
+
+    const heights = cards.map((card) => card.getBoundingClientRect().height);
+    const placements = [];
+
+    cards.forEach((card, index) => {
+      const placement = placePhotoMosaicCard(
+        spans[index],
+        heights[index],
+        placements,
+        placements.at(-1),
+        layout.columns
+      );
+      const left = placement.column * (columnWidth + PHOTO_MOSAIC_GAP);
+
+      card.style.left = `${left}px`;
+      card.style.top = `${placement.top}px`;
+      placements.push(placement);
+    });
+
+    const galleryHeight = placements.reduce(
+      (maximum, placement) =>
+        Math.max(maximum, placement.top + placement.height),
+      0
+    );
+    gallery.style.height = `${galleryHeight}px`;
+    gallery.classList.add("photo-mosaic--ready");
+  }
+
+  function schedulePhotoMosaicLayout() {
+    if (photoMosaicFrame !== null) {
+      return;
+    }
+
+    photoMosaicFrame = window.requestAnimationFrame(() => {
+      photoMosaicFrame = null;
+      layoutPhotoMosaic();
+    });
+  }
+
+  function initialisePhotoMosaic(gallery) {
+    photoMosaicObserver?.disconnect();
+    observedPhotoMosaicWidth = null;
+
+    if ("ResizeObserver" in window) {
+      photoMosaicObserver = new ResizeObserver((entries) => {
+        const width = entries[0]?.contentRect.width;
+        if (
+          Number.isFinite(width) &&
+          (observedPhotoMosaicWidth === null ||
+            Math.abs(width - observedPhotoMosaicWidth) > 0.5)
+        ) {
+          observedPhotoMosaicWidth = width;
+          schedulePhotoMosaicLayout();
+        }
+      });
+      photoMosaicObserver.observe(gallery);
+    }
+
+    if (!photoMosaicFontWatchStarted && document.fonts?.ready) {
+      photoMosaicFontWatchStarted = true;
+      document.fonts.ready.then(schedulePhotoMosaicLayout);
+    }
+
+    schedulePhotoMosaicLayout();
+  }
+
   function handleBrokenImage(image, artwork) {
     warn(`The image for "${artwork.title}" could not be loaded: ${artwork.image}`);
 
@@ -139,6 +504,10 @@
       trigger.setAttribute("aria-label", `${artwork.title}: image unavailable`);
     }
     image.replaceWith(replacement);
+
+    if (artwork.sectionKey === PHOTO_MOSAIC_SECTION) {
+      schedulePhotoMosaicLayout();
+    }
   }
 
   function createArtworkElement(artwork, index) {
@@ -173,6 +542,9 @@
     image.addEventListener("error", () => handleBrokenImage(image, artwork), {
       once: true
     });
+    if (artwork.sectionKey === PHOTO_MOSAIC_SECTION) {
+      image.addEventListener("load", schedulePhotoMosaicLayout, { once: true });
+    }
     trigger.append(image);
 
     const caption = document.createElement("figcaption");
@@ -258,6 +630,10 @@
         fragment.append(createArtworkElement(artwork, index));
       });
       gallery.replaceChildren(fragment);
+
+      if (sectionKey === PHOTO_MOSAIC_SECTION) {
+        initialisePhotoMosaic(gallery);
+      }
     });
   }
 
@@ -855,6 +1231,7 @@
     if (!lightbox.hidden) {
       setViewerView(viewerScale, viewerPanX, viewerPanY);
     }
+    schedulePhotoMosaicLayout();
     updateActiveSection();
   });
 
