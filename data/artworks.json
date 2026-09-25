@@ -185,6 +185,16 @@
       "height": 2304
     },
     {
+      "id": "Unwritten Choreography",
+      "title": "Unwritten Choreography",
+      "year": "Berlin · 2025",
+      "image": "images/light-and-shadow-studies/unwritten-choreography.jpg",
+      "alt": "Black-and-white photograph of a group of swans gathered closely together on the water.",
+      "size": "medium",
+      "width": 2716,
+      "height": 1528
+    },
+    {
       "id": "boundaries-of-expression.png",
       "title": "Boundaries of Expression",
       "year": "Bodrum · 2023",
@@ -205,12 +215,22 @@
       "height": 3168
     },
     {
+      "id": "the-other-summit.JPG",
+      "title": "The Other Summit",
+      "year": "Athens · 2024",
+      "image": "images/light-and-shadow-studies/the-other-summit.JPG",
+      "alt": "Black-and-white photograph of a landscape, a view from Acropolis.",
+      "size": "medium",
+      "width": 3456,
+      "height": 2304
+    },
+    {
       "id": "baby-crow.JPG",
       "title": "Waiting to Be Fed",
       "year": "Istanbul · 2023",
       "image": "images/light-and-shadow-studies/baby-crow.JPG",
       "alt": "A black-and-white close-up portrait of a young crow with its beak wide open, looking directly into the camera.",
-      "size": "medium",
+      "size": "small",
       "width": 3456,
       "height": 2304
     },
@@ -245,16 +265,6 @@
       "height": 2304
     },
     {
-      "id": "the-other-summit.JPG",
-      "title": "The Other Summit",
-      "year": "Athens · 2024",
-      "image": "images/light-and-shadow-studies/the-other-summit.JPG",
-      "alt": "Black-and-white photograph of a landscape, a view from Acropolis.",
-      "size": "medium",
-      "width": 3456,
-      "height": 2304
-    },
-    {
       "id": "Wanderer Above the Sea of Stone",
       "title": "Wanderer Above the Sea of Stone",
       "year": "Cappadocia · 2024",
@@ -263,16 +273,6 @@
       "size": "small",
       "width": 1440,
       "height": 960
-    },
-    {
-      "id": "Unwritten Choreography",
-      "title": "Unwritten Choreography",
-      "year": "Berlin · 2025",
-      "image": "images/light-and-shadow-studies/unwritten-choreography.jpg",
-      "alt": "Black-and-white photograph of a group of swans gathered closely together on the water.",
-      "size": "medium",
-      "width": 2716,
-      "height": 1528
     },
     {
       "id": "the-usual-suspects.png",
