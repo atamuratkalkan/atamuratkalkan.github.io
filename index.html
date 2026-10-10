@@ -63,8 +63,8 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&amp;family=Inter:wght@400;500;600&amp;display=swap"
     >
-    <link rel="stylesheet" href="style.css?v=8">
-    <script src="script.js?v=6" defer></script>
+    <link rel="stylesheet" href="style.css?v=9">
+    <script src="script.js?v=7" defer></script>
 
     <script type="application/ld+json">
       {
@@ -265,8 +265,8 @@
     >
       <p class="visually-hidden" id="lightbox-instructions">
         Click the artwork to toggle detail view. While zoomed, move the mouse across the artwork to inspect it.
-        On touch devices, pinch to zoom and drag to pan. Use the left and right arrow keys to change artworks,
-        or press Escape to close.
+        On touch devices, pinch to zoom and drag to pan. Animal Studies may also include image thumbnails.
+        Use the left and right arrow keys to move through available images, or press Escape to close.
       </p>
       <p class="visually-hidden" id="lightbox-status" aria-live="polite"></p>
       <div class="lightbox__tools" role="group" aria-label="Artwork view controls">
@@ -283,6 +283,12 @@
       <button class="lightbox__previous" type="button" aria-label="Show previous artwork">
         <span aria-hidden="true">←</span>
       </button>
+      <div
+        class="lightbox__thumbnails"
+        role="group"
+        aria-label="Images for current painting"
+        hidden
+      ></div>
       <div class="lightbox__stage">
         <img class="lightbox__image" alt="">
       </div>

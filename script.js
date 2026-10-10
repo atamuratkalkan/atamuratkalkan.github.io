@@ -14,6 +14,8 @@
   const MIN_VIEWER_SCALE = 1;
   const DETAIL_VIEW_SCALE = 2.75;
   const VIEWER_ZOOM_EPSILON = 0.01;
+  const ANIMAL_STUDIES_SECTION = "animalStudies";
+  const MAX_ARTWORK_DETAILS = 3;
   const PHOTO_GALLERY_SECTION = "lightAndShadowStudies";
   const PHOTO_GALLERY_GAP = 18;
   const PHOTO_GALLERY_MOBILE_MAX = 699;
@@ -39,6 +41,7 @@
   const lightboxPrevious = lightbox.querySelector(".lightbox__previous");
   const lightboxNext = lightbox.querySelector(".lightbox__next");
   const lightboxZoomToggle = lightbox.querySelector(".lightbox__zoom-toggle");
+  const lightboxThumbnails = lightbox.querySelector(".lightbox__thumbnails");
 
   const menuButton = document.querySelector(".menu-button");
   const mobileMenu = document.querySelector(".mobile-menu");
@@ -49,6 +52,7 @@
   let overlayReturnFocus = null;
   let lightboxSection = null;
   let lightboxIndex = 0;
+  let lightboxImageIndex = 0;
   let viewerScale = 1;
   let viewerPanX = 0;
   let viewerPanY = 0;
@@ -73,6 +77,76 @@
 
   function cleanText(value) {
     return typeof value === "string" ? value.trim() : "";
+  }
+
+  function normaliseArtworkDetails(value, sectionKey, artworkId, primaryImage) {
+    if (sectionKey !== ANIMAL_STUDIES_SECTION || value === undefined) {
+      return [];
+    }
+
+    if (!Array.isArray(value)) {
+      warn(`${artworkId} has an invalid details value; an array is required.`);
+      return [];
+    }
+
+    if (value.length > MAX_ARTWORK_DETAILS) {
+      warn(
+        `${artworkId} lists more than ${MAX_ARTWORK_DETAILS} detail images; extra entries were ignored.`
+      );
+    }
+
+    const extensionIndex = primaryImage.lastIndexOf(".");
+    const detailPrefix =
+      extensionIndex > 0 ? `${primaryImage.slice(0, extensionIndex)}-` : "";
+    const detailExtension =
+      extensionIndex > 0 ? primaryImage.slice(extensionIndex) : "";
+    const detailNumbers = new Set();
+
+    return value
+      .slice(0, MAX_ARTWORK_DETAILS)
+      .map((detail, detailIndex) => {
+        if (!detail || typeof detail !== "object" || Array.isArray(detail)) {
+          warn(`${artworkId} detail ${detailIndex + 1} is invalid and was skipped.`);
+          return null;
+        }
+
+        const image = cleanText(detail.image);
+        const alt = cleanText(detail.alt);
+        if (!image || !alt) {
+          warn(
+            `${artworkId} detail ${detailIndex + 1} needs both image and alt text and was skipped.`
+          );
+          return null;
+        }
+
+        const matchesNamingConvention =
+          detailPrefix &&
+          image.startsWith(detailPrefix) &&
+          image.endsWith(detailExtension);
+        const detailNumber = matchesNamingConvention
+          ? Number(image.slice(detailPrefix.length, -detailExtension.length))
+          : NaN;
+
+        if (
+          !Number.isInteger(detailNumber) ||
+          detailNumber < 1 ||
+          detailNumber > MAX_ARTWORK_DETAILS
+        ) {
+          warn(
+            `${artworkId} detail ${detailIndex + 1} does not follow the primary-name-1 to primary-name-3 convention and was skipped.`
+          );
+          return null;
+        }
+
+        if (detailNumbers.has(detailNumber)) {
+          warn(`${artworkId} repeats detail ${detailNumber}; the duplicate was skipped.`);
+          return null;
+        }
+        detailNumbers.add(detailNumber);
+
+        return { image, alt, detailNumber };
+      })
+      .filter(Boolean);
   }
 
   function normaliseArtwork(item, sectionKey, index) {
@@ -120,7 +194,21 @@
       warn(`${id} has no valid width and height. The image will still load.`);
     }
 
-    return { id, title, year, medium, image, alt, size, width, height, sectionKey };
+    const details = normaliseArtworkDetails(item.details, sectionKey, id, image);
+
+    return {
+      id,
+      title,
+      year,
+      medium,
+      image,
+      alt,
+      size,
+      width,
+      height,
+      details,
+      sectionKey
+    };
   }
 
   function imageSizes(size) {
@@ -549,6 +637,12 @@
     return viewerScale > MIN_VIEWER_SCALE + VIEWER_ZOOM_EPSILON;
   }
 
+  function viewerCanZoom() {
+    return !(
+      lightboxSection === ANIMAL_STUDIES_SECTION && lightboxImageIndex > 0
+    );
+  }
+
   function viewerPanLimits(scale = viewerScale) {
     return {
       x: Math.max(0, (lightboxImage.offsetWidth * scale - lightboxStage.clientWidth) / 2),
@@ -620,6 +714,10 @@
   }
 
   function toggleDetailView(clientX, clientY) {
+    if (!viewerCanZoom()) {
+      return;
+    }
+
     if (viewerIsZoomed()) {
       resetViewer(true);
       return;
@@ -677,7 +775,7 @@
   }
 
   function handleViewerWheel(event) {
-    if (lightbox.hidden) {
+    if (lightbox.hidden || !viewerCanZoom()) {
       return;
     }
 
@@ -758,6 +856,9 @@
 
     const currentPointers = [...viewerPointers.values()];
     if (currentPointers.length >= 2) {
+      if (!viewerCanZoom()) {
+        return;
+      }
       event.preventDefault();
       const oldFirst = {
         x: previousPointers[0].x,
@@ -843,7 +944,101 @@
     }
   }
 
-  function updateLightbox() {
+  function artworkLightboxImages(artwork) {
+    const primary = {
+      image: artwork.image,
+      alt: artwork.alt,
+      isPrimary: true,
+      detailNumber: null
+    };
+
+    if (artwork.sectionKey !== ANIMAL_STUDIES_SECTION) {
+      return [primary];
+    }
+
+    const details = artwork.details
+      .map((detail) => ({
+        ...detail,
+        isPrimary: false
+      }))
+      .sort((first, second) => first.detailNumber - second.detailNumber);
+
+    return [primary, ...details];
+  }
+
+  function removeUnavailableDetail(imagePath) {
+    const artworks = galleryData[lightboxSection] || [];
+    const artwork = artworks[lightboxIndex];
+    if (!artwork || artwork.sectionKey !== ANIMAL_STUDIES_SECTION) {
+      return;
+    }
+
+    const detailIndex = artwork.details.findIndex(
+      (detail) => detail.image === imagePath
+    );
+    if (detailIndex < 0) {
+      return;
+    }
+
+    const activePath = artworkLightboxImages(artwork)[lightboxImageIndex]?.image;
+    artwork.details.splice(detailIndex, 1);
+    warn(`The unavailable detail image was skipped: ${imagePath}`);
+
+    const images = artworkLightboxImages(artwork);
+    const nextActiveIndex = images.findIndex((image) => image.image === activePath);
+    lightboxImageIndex = activePath === imagePath ? 0 : Math.max(0, nextActiveIndex);
+    updateLightbox();
+  }
+
+  function renderLightboxThumbnails(artwork, images) {
+    const isAnimalStudy = artwork.sectionKey === ANIMAL_STUDIES_SECTION;
+    lightbox.classList.toggle("has-thumbnails", isAnimalStudy);
+    lightboxThumbnails.hidden = !isAnimalStudy;
+    lightboxThumbnails.replaceChildren();
+
+    if (!isAnimalStudy) {
+      return;
+    }
+
+    images.forEach((image, index) => {
+      const button = document.createElement("button");
+      button.className = "lightbox__thumbnail";
+      button.type = "button";
+      button.dataset.lightboxImageIndex = String(index);
+      button.setAttribute("aria-pressed", String(index === lightboxImageIndex));
+
+      const imageName = image.isPrimary
+        ? "primary image"
+        : `detail image ${image.detailNumber}`;
+      button.setAttribute("aria-label", `Show ${imageName} for ${artwork.title}`);
+
+      const thumbnail = document.createElement("img");
+      thumbnail.src = image.image;
+      thumbnail.alt = "";
+      thumbnail.decoding = "async";
+      thumbnail.addEventListener(
+        "error",
+        () => {
+          if (!image.isPrimary) {
+            removeUnavailableDetail(image.image);
+          }
+        },
+        { once: true }
+      );
+      button.append(thumbnail);
+
+      button.addEventListener("click", () => {
+        lightboxImageIndex = index;
+        updateLightbox(true);
+        lightboxThumbnails
+          .querySelector(`[data-lightbox-image-index="${index}"]`)
+          ?.focus({ preventScroll: true });
+      });
+      lightboxThumbnails.append(button);
+    });
+  }
+
+  function updateLightbox(announce = false) {
     const artworks = galleryData[lightboxSection] || [];
     const artwork = artworks[lightboxIndex];
     if (!artwork) {
@@ -851,17 +1046,51 @@
       return;
     }
 
+    const images = artworkLightboxImages(artwork);
+    lightboxImageIndex = clamp(lightboxImageIndex, 0, images.length - 1);
+    const activeImage = images[lightboxImageIndex];
+    const isZoomable = activeImage.isPrimary;
+
     resetViewer();
-    lightboxImage.src = artwork.image;
-    lightboxImage.alt = artwork.alt;
+    lightboxStage.classList.toggle("is-detail-image", !isZoomable);
+    lightboxZoomToggle.hidden = !isZoomable;
+    lightboxImage.src = activeImage.image;
+    lightboxImage.alt = activeImage.alt;
     lightboxTitle.textContent = artwork.title;
     lightboxMetadata.textContent = [artwork.year, artwork.medium]
       .filter(Boolean)
       .join(" · ");
+    renderLightboxThumbnails(artwork, images);
 
-    const hasMultiple = artworks.length > 1;
+    const itemCount =
+      lightboxSection === ANIMAL_STUDIES_SECTION
+        ? artworks.reduce(
+            (total, item) => total + artworkLightboxImages(item).length,
+            0
+          )
+        : artworks.length;
+    const hasMultiple = itemCount > 1;
     lightboxPrevious.hidden = !hasMultiple;
     lightboxNext.hidden = !hasMultiple;
+    lightboxPrevious.setAttribute(
+      "aria-label",
+      lightboxSection === ANIMAL_STUDIES_SECTION
+        ? "Show previous painting image"
+        : "Show previous artwork"
+    );
+    lightboxNext.setAttribute(
+      "aria-label",
+      lightboxSection === ANIMAL_STUDIES_SECTION
+        ? "Show next painting image"
+        : "Show next artwork"
+    );
+
+    if (announce) {
+      const imageName = activeImage.isPrimary
+        ? "Primary image"
+        : `Detail image ${activeImage.detailNumber}`;
+      announceViewerStatus(`${imageName} for ${artwork.title}.`);
+    }
   }
 
   function openLightbox(sectionKey, index, trigger) {
@@ -871,6 +1100,7 @@
 
     lightboxSection = sectionKey;
     lightboxIndex = index;
+    lightboxImageIndex = 0;
     updateLightbox();
     lightbox.hidden = false;
     lockPage(lightbox, trigger);
@@ -885,17 +1115,52 @@
     lightbox.hidden = true;
     lightboxImage.removeAttribute("src");
     lightboxImage.alt = "";
+    lightboxImageIndex = 0;
+    lightbox.classList.remove("has-thumbnails");
+    lightboxThumbnails.hidden = true;
+    lightboxThumbnails.replaceChildren();
     lightboxStatus.textContent = "";
     unlockPage();
   }
 
   function moveLightbox(direction) {
     const artworks = galleryData[lightboxSection] || [];
-    if (artworks.length < 2) {
+    if (artworks.length === 0) {
       return;
     }
-    lightboxIndex = (lightboxIndex + direction + artworks.length) % artworks.length;
-    updateLightbox();
+
+    if (lightboxSection === ANIMAL_STUDIES_SECTION) {
+      const itemCount = artworks.reduce(
+        (total, artwork) => total + artworkLightboxImages(artwork).length,
+        0
+      );
+      if (itemCount < 2) {
+        return;
+      }
+
+      if (direction > 0) {
+        const images = artworkLightboxImages(artworks[lightboxIndex]);
+        if (lightboxImageIndex < images.length - 1) {
+          lightboxImageIndex += 1;
+        } else {
+          lightboxIndex = (lightboxIndex + 1) % artworks.length;
+          lightboxImageIndex = 0;
+        }
+      } else if (lightboxImageIndex > 0) {
+        lightboxImageIndex -= 1;
+      } else {
+        lightboxIndex = (lightboxIndex - 1 + artworks.length) % artworks.length;
+        lightboxImageIndex = artworkLightboxImages(artworks[lightboxIndex]).length - 1;
+      }
+    } else {
+      if (artworks.length < 2) {
+        return;
+      }
+      lightboxIndex = (lightboxIndex + direction + artworks.length) % artworks.length;
+      lightboxImageIndex = 0;
+    }
+
+    updateLightbox(true);
   }
 
   function openMobileMenu() {
@@ -1015,6 +1280,20 @@
   lightboxImage.addEventListener("load", () => {
     if (!lightbox.hidden) {
       setViewerView(viewerScale, viewerPanX, viewerPanY);
+    }
+  });
+  lightboxImage.addEventListener("error", () => {
+    if (
+      lightboxSection === ANIMAL_STUDIES_SECTION &&
+      lightboxImageIndex > 0
+    ) {
+      const artwork = galleryData[lightboxSection]?.[lightboxIndex];
+      const activeImage = artwork
+        ? artworkLightboxImages(artwork)[lightboxImageIndex]
+        : null;
+      if (activeImage && !activeImage.isPrimary) {
+        removeUnavailableDetail(activeImage.image);
+      }
     }
   });
   lightboxImage.addEventListener("dragstart", (event) => event.preventDefault());

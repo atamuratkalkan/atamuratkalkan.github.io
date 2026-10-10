@@ -93,6 +93,34 @@ Example:
 The width and height are the image's pixel dimensions. They help prevent the page
 from moving while an image loads.
 
+## Add Animal Studies detail photographs
+
+Detail photographs are optional and appear only in the Animal Studies lightbox.
+Keep them in `images/animal-studies/` and add `-1`, `-2`, or `-3` before the
+primary image extension. For example, a primary file named `painting-name.jpg`
+uses `painting-name-1.jpg`, `painting-name-2.jpg`, and `painting-name-3.jpg`.
+
+Upload the detail files first. Then add a `"details"` array to that painting in
+`data/artworks.json`:
+
+```json
+"details": [
+  {
+    "image": "images/animal-studies/painting-name-1.jpg",
+    "alt": "Describe exactly what is visible in this detail photograph"
+  },
+  {
+    "image": "images/animal-studies/painting-name-3.jpg",
+    "alt": "Describe exactly what is visible in this detail photograph"
+  }
+]
+```
+
+List only files that exist and include accurate alt text for every detail. You
+may list zero to three details. Missing numbers are allowed: listing `-1` and
+`-3` without `-2` works correctly. The primary image remains the only image in
+the main gallery.
+
 ## Remove an artwork
 
 1. Open `data/artworks.json`.
