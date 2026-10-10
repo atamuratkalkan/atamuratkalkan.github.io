@@ -7,6 +7,12 @@
       "medium": "Oil on paper · 30 x 40 cm",
       "image": "images/animal-studies/swan.jpg",
       "alt": "A stylized black and white swan painted with thick impasto oil paint.",
+      "details": [
+        {
+          "image": "images/animal-studies/swan-1.jpg",
+          "alt": "Blank white placeholder for the first Swan detail photograph."
+        }
+      ],
       "size": "large",
       "width": 2900,
       "height": 2087
