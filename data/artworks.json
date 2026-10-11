@@ -10,11 +10,15 @@
       "details": [
         {
           "image": "images/animal-studies/swan-1.jpg",
-          "alt": "Blank white placeholder for the first Swan detail photograph."
+          "alt": "A detailed zoom of a swan painted with thick impasto oil paint."
         },
         {
           "image": "images/animal-studies/swan-2.jpg",
-          "alt": "Blank white placeholder for the second Swan detail photograph."
+          "alt": "A detailed zoom of a swan painted with thick impasto oil paint."
+        },
+        {
+          "image": "images/animal-studies/swan-3.jpg",
+          "alt": "A detailed zoom of a swan painted with thick impasto oil paint."
         }
       ],
       "size": "large",
