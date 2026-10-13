@@ -32,6 +32,20 @@
       "medium": "Oil on paper · 30 x 40 cm",
       "image": "images/animal-studies/hedgehog.jpg",
       "alt": "A stylized portrait of a hedgehog painted with thick impasto oil paint using a palette knife.",
+      "details": [
+        {
+          "image": "images/animal-studies/hedgehog-1.jpg",
+          "alt": "A detailed zoom of a hedgehog painted with thick impasto oil paint."
+        },
+        {
+          "image": "images/animal-studies/hedgehog-2.jpg",
+          "alt": "A detailed zoom of a hedgehog painted with thick impasto oil paint."
+        },
+        {
+          "image": "images/animal-studies/hedgehog-3.jpg",
+          "alt": "A detailed zoom of a hedgehog painted with thick impasto oil paint."
+        }
+      ],
       "size": "large",
       "width": 2000,
       "height": 1487
