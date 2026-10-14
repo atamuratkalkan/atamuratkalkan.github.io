@@ -57,6 +57,20 @@
       "medium": "Oil on paper · 26 x 26 cm",
       "image": "images/animal-studies/raven.jpg",
       "alt": "A stylized portrait of a raven painted with thick impasto oil paint using a palette knife.",
+      "details": [
+        {
+          "image": "images/animal-studies/raven-1.jpg",
+          "alt": "A detailed zoom of a raven painted with thick impasto oil paint."
+        },
+        {
+          "image": "images/animal-studies/raven-2.jpg",
+          "alt": "A detailed zoom of a raven painted with thick impasto oil paint."
+        },
+        {
+          "image": "images/animal-studies/raven-3.jpg",
+          "alt": "A detailed zoom of a raven painted with thick impasto oil paint."
+        }
+      ],
       "size": "large",
       "width": 2100,
       "height": 2104
