@@ -82,6 +82,20 @@
       "medium": "Oil on paper  · 30 x 42 cm",
       "image": "images/animal-studies/anglerfish.jpg",
       "alt": "A stylized portrait of a anglerfish painted with thick impasto oil paint using a palette knife.",
+      "details": [
+        {
+          "image": "images/animal-studies/anglerfish-1.jpg",
+          "alt": "A detailed zoom of a anglerfish painted with thick impasto oil paint."
+        },
+        {
+          "image": "images/animal-studies/anglerfish-2.jpg",
+          "alt": "A detailed zoom of a anglerfish painted with thick impasto oil paint."
+        },
+        {
+          "image": "images/animal-studies/anglerfish-3.jpg",
+          "alt": "A detailed zoom of a anglerfish painted with thick impasto oil paint."
+        }
+      ],
       "size": "large",
       "width": 2950,
       "height": 2009
