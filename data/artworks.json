@@ -117,6 +117,20 @@
       "year": "2026",
       "medium": "Oil on paper · 30 x 40 cm",
       "image": "images/animal-studies/the-fish.jpg",
+      "details": [
+        {
+          "image": "images/animal-studies/fish-1.jpg",
+          "alt": "A detailed zoom of a fish painted with thick impasto oil paint."
+        },
+        {
+          "image": "images/animal-studies/fish-2.jpg",
+          "alt": "A detailed zoom of a fish painted with thick impasto oil paint."
+        },
+        {
+          "image": "images/animal-studies/fish-3.jpg",
+          "alt": "A detailed zoom of a fish painted with thick impasto oil paint."
+        }
+      ],
       "alt": "A stylized close-up portrait of a fish painted with thick impasto oil paint using a palette knife.",
       "size": "large",
       "width": 2800,
