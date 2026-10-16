@@ -142,6 +142,20 @@
       "year": "2025",
       "medium": "Oil on paper · 30 x 42 cm",
       "image": "images/animal-studies/the-decapus.jpg",
+      "details": [
+        {
+          "image": "images/animal-studies/the-decapus-1.jpg",
+          "alt": "A detailed zoom of The Decapus painted with thick impasto oil paint."
+        },
+        {
+          "image": "images/animal-studies/the-decapus-2.jpg",
+          "alt": "A detailed zoom of The Decapus painted with thick impasto oil paint."
+        },
+        {
+          "image": "images/animal-studies/the-decapus-3.jpg",
+          "alt": "A detailed zoom of The Decapus painted with thick impasto oil paint."
+        }
+      ],
       "alt": "A stylized close-up portrait of a octopus painted with thick impasto oil paint using a palette knife.",
       "size": "large",
       "width": 2900,
