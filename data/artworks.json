@@ -214,6 +214,20 @@
       "year": "2025",
       "medium": "Oil on paper · 40 x 30 cm",
       "image": "images/animal-studies/hyacinth-macaw.jpg",
+      "details": [
+        {
+          "image": "images/animal-studies/hyacinth-macaw-1.jpg",
+          "alt": "A detailed zoom of a hyacinth macaw painted with thick impasto oil paint."
+        },
+        {
+          "image": "images/animal-studies/hyacinth-macaw-2.jpg",
+          "alt": "A detailed zoom of a hyacinth macaw painted with thick impasto oil paint."
+        },
+        {
+          "image": "images/animal-studies/hyacinth-macaw-3.jpg",
+          "alt": "A detailed zoom of a hyacinth macaw painted with thick impasto oil paint."
+        }
+      ],
       "alt": "A stylized portrait of a hyacinth macaw painted with thick impasto oil paint and vivid colors using a palette knife.",
       "size": "medium",
       "width": 2081,
