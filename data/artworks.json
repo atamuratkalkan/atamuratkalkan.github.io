@@ -211,6 +211,20 @@
       "year": "2026",
       "medium": "Oil on paper · 26 x 17 cm (Inspired from Werner Herzog's 2007 documentary: Encounters at the End of the World) ",
       "image": "images/animal-studies/the-nihilist-penguin.jpg",
+      "details": [
+        {
+          "image": "images/animal-studies/the-nihilist-penguin-1.jpg",
+          "alt": "A detailed zoom of a penguin painted with thick impasto oil paint."
+        },
+        {
+          "image": "images/animal-studies/the-nihilist-penguin-2.jpg",
+          "alt": "A detailed zoom of a penguin painted with thick impasto oil paint."
+        },
+        {
+          "image": "images/animal-studies/the-nihilist-penguin-3.jpg",
+          "alt": "A detailed zoom a penguin painted with thick impasto oil paint."
+        }
+      ],
       "alt": "A stylized portrait of a penguin, walking toward distant mountains painted with thick impasto oil paint and vivid colors using a palette knife.",
       "size": "small",
       "width": 1638,
