@@ -265,15 +265,15 @@ h2 {
 }
 
 .artwork--large {
-  grid-column: span 8;
-}
-
-.artwork--medium {
   grid-column: span 6;
 }
 
-.artwork--small {
+.artwork--medium {
   grid-column: span 4;
+}
+
+.artwork--small {
+  grid-column: span 3;
 }
 
 .artwork__trigger {
