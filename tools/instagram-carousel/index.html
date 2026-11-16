@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f1e8">
+    <meta name="description" content="Prepare artwork covers and seamless Instagram carousel slides. Private, local image processing in your browser.">
+    <title>Carousel Studio — Ata Murat Kalkan</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#workspace">Skip to image previews</a>
+    <header class="site-header">
+      <a class="wordmark" href="../../">Ata Murat Kalkan</a>
+      <p>Studio tools <span aria-hidden="true">/</span> 01</p>
+    </header>
+    <main>
+      <div class="page-heading">
+        <div><p class="eyebrow">For the work, in detail</p><h1>Carousel Studio</h1></div>
+        <p>One painting. A closer look.<br>Prepare a full-artwork cover and a seamless sequence.</p>
+      </div>
+      <div id="dropzone" class="upload-area">
+        <div><h2>Start with your artwork</h2><p>Drop a JPEG, PNG or WebP here. Up to 80 MB.</p></div>
+        <button type="button" id="choose-image">Choose an image</button>
+        <input type="file" id="image-file" accept="image/jpeg,image/png,image/webp" hidden>
+        <p class="privacy-note">Your image stays on this device. Nothing is uploaded.</p>
+      </div>
+      <p id="error" class="message error" role="alert" hidden></p>
+      <div class="studio-layout">
+        <aside class="settings" aria-label="Carousel settings">
+          <form id="settings-form">
+            <fieldset id="settings-fields">
+              <legend>01 <span>Format &amp; sequence</span></legend>
+              <label for="preset">Slide format</label>
+              <select id="preset">
+                <option value="3:4">3:4 — portrait</option>
+                <option value="4:5">4:5 — portrait</option>
+                <option value="1:1">1:1 — square</option>
+                <option value="landscape">Landscape — 1080 × 566</option>
+                <option value="custom">Custom</option>
+              </select>
+              <div id="custom-fields" hidden>
+                <label for="custom-kind">Custom format</label>
+                <select id="custom-kind"><option value="ratio">Aspect ratio</option><option value="pixels">Exact pixel dimensions</option></select>
+                <div class="field-pair">
+                  <div><label for="custom-width">Width</label><input id="custom-width" type="number" min="0.01" step="any" value="3" inputmode="decimal"></div>
+                  <div><label for="custom-height">Height</label><input id="custom-height" type="number" min="0.01" step="any" value="4" inputmode="decimal"></div>
+                </div>
+                <p id="custom-help" class="hint">Enter a ratio, for example 3 × 4. Resolution sets the pixel size.</p>
+              </div>
+              <label for="resolution">Output width</label>
+              <select id="resolution"><option value="1080">1080 px — Instagram standard</option><option value="1440">1440 px</option><option value="2160">2160 px — high resolution</option><option value="custom">Custom width</option></select>
+              <div id="resolution-custom" hidden><label for="output-width">Width in pixels</label><input id="output-width" type="number" min="64" max="8192" step="1" value="1080" inputmode="numeric"></div>
+              <output id="dimensions" class="dimensions" aria-live="polite">1080 × 1440 px per slide</output>
+              <p id="ratio-warning" class="message warning" hidden></p>
+              <p id="size-error" class="message error" hidden></p>
+              <label for="detail-count">Continuous detail slides</label>
+              <select id="detail-count"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select>
+              <label class="check"><input id="include-cover" type="checkbox" checked> Add the independent cover as slide 1</label>
+              <label for="background">Background colour</label>
+              <div class="colour-field"><input id="background" type="color" value="#f5f1e8"><output id="background-value">#f5f1e8</output></div>
+              <label class="check"><input id="auto-centre" type="checkbox" checked> Re-centre when changing format or slide count</label>
+              <p class="hint">The cover is a separate composition. Only the detail slides connect edge to edge.</p>
+              <div class="settings-divider"></div>
+              <h2 class="settings-heading">02 <span>Export</span></h2>
+              <label for="file-format">File format</label>
+              <select id="file-format"><option value="image/jpeg">JPEG — smaller files</option><option value="image/png">PNG — lossless</option></select>
+              <label for="quality">JPEG quality <output id="quality-value">94%</output></label>
+              <input id="quality" type="range" min="60" max="100" value="94">
+              <p class="hint" id="format-help">High-quality JPEG for photographs. Use PNG for lossless pixel preservation.</p>
+            </fieldset>
+          </form>
+          <button type="button" id="generate" class="primary" disabled>Generate carousel</button>
+          <p id="status" class="status" role="status" aria-live="polite">Choose an image to begin.</p>
+        </aside>
+        <div id="workspace" class="workspace" tabindex="-1">
+          <div class="workspace-heading"><h2>Framing desk</h2><span id="source-info">No image selected</span></div>
+          <div id="empty-state" class="empty-state"><p>Your artwork belongs here.</p><span>Choose a photograph to start composing.</span></div>
+          <div id="editors" hidden>
+            <div class="cover-row">
+              <section class="original-panel" aria-labelledby="original-heading">
+                <div class="panel-title"><h3 id="original-heading">Original</h3><span>Unchanged source</span></div>
+                <div class="original-stage"><canvas id="original-preview" role="img" aria-label="Original uploaded artwork"></canvas></div>
+                <p class="hint" id="source-name"></p>
+              </section>
+              <section id="cover-panel" aria-labelledby="cover-heading">
+                <div class="panel-title"><h3 id="cover-heading">The cover</h3><span>Independent slide</span></div>
+                <div class="editor-stage cover-stage" id="cover-stage" tabindex="0" role="group" aria-label="Cover framing. Use arrow keys to reposition; plus and minus to zoom." aria-describedby="edit-instructions"><canvas id="cover-preview" role="img" aria-label="Live cover framing preview"></canvas></div>
+                <div class="editor-controls" data-editor="cover">
+                  <label>Framing<select data-control="mode" aria-label="Cover framing mode"><option value="fit">Fit — entire artwork</option><option value="fill">Crop — fill the frame</option></select></label>
+                  <label>Zoom <output data-value="zoom">100%</output><input data-control="zoom" aria-label="Cover zoom" type="range" min="0.5" max="4" step="0.01" value="1"></label>
+                  <div class="field-pair"><label>Horizontal<input data-control="x" aria-label="Cover horizontal position" type="range" min="-1" max="1" step="0.01" value="0"></label><label>Vertical<input data-control="y" aria-label="Cover vertical position" type="range" min="-1" max="1" step="0.01" value="0"></label></div>
+                  <div class="button-row"><button type="button" data-action="centre">Centre</button><button type="button" data-action="reset">Reset cover</button></div>
+                </div>
+              </section>
+            </div>
+            <section class="panorama-panel" aria-labelledby="panorama-heading">
+              <div class="panel-title"><h3 id="panorama-heading">The continuous view</h3><span id="master-dimensions">One master, three cuts</span></div>
+              <p id="edit-instructions" class="hint">Drag the image to reframe it, or use the sliders. Keyboard: arrow keys move, + / − zoom. Dashed lines mark the cuts; they are not exported.</p>
+              <div class="panorama-viewport"><div class="editor-stage panorama-stage" id="detail-stage" tabindex="0" role="group" aria-label="Continuous panorama framing. Use arrow keys to reposition; plus and minus to zoom." aria-describedby="edit-instructions"><canvas id="detail-preview" role="img" aria-label="Continuous panorama framing preview"></canvas><div id="cut-lines" class="cut-lines" aria-hidden="true"></div></div></div>
+              <div class="editor-controls panorama-controls" data-editor="detail">
+                <label>Framing<select data-control="mode" aria-label="Detail sequence framing mode"><option value="fill">Crop — fill the panorama</option><option value="fit">Fit — entire artwork</option></select></label>
+                <label>Zoom <output data-value="zoom">100%</output><input data-control="zoom" aria-label="Detail sequence zoom" type="range" min="0.5" max="4" step="0.01" value="1"></label>
+                <label>Horizontal<input data-control="x" aria-label="Detail horizontal position" type="range" min="-1" max="1" step="0.01" value="0"></label>
+                <label>Vertical<input data-control="y" aria-label="Detail vertical position" type="range" min="-1" max="1" step="0.01" value="0"></label>
+                <div class="button-row"><button type="button" data-action="centre">Centre</button><button type="button" data-action="reset">Reset panorama</button></div>
+              </div>
+              <p class="hint">A tall painting spread across several portrait slides is cropped vertically in fill mode. Use fit mode to keep it all, or reduce the number of detail slides.</p>
+            </section>
+          </div>
+          <section id="results" class="results" aria-labelledby="results-heading" hidden>
+            <div class="workspace-heading"><div><p class="eyebrow">Ready to share</p><h2 id="results-heading">Your carousel</h2></div><button type="button" id="download-zip" class="primary">Download all as ZIP</button></div>
+            <p id="export-summary" class="hint"></p>
+            <div class="result-layout">
+              <section class="simulation" aria-labelledby="simulation-heading">
+                <h3 id="simulation-heading">Swipe through</h3>
+                <div id="carousel" class="carousel" role="region" aria-label="Generated carousel. Swipe, or use left and right arrow keys." tabindex="0"></div>
+                <div class="carousel-navigation"><button type="button" id="previous" aria-label="Previous slide">←</button><span id="slide-counter" role="status" aria-live="polite">1 / 4</span><button type="button" id="next" aria-label="Next slide">→</button></div>
+                <div id="carousel-dots" class="carousel-dots" role="group" aria-label="Choose a slide"></div>
+              </section>
+              <div><h3>Individual files</h3><div id="slide-list" class="slide-list"></div></div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+    <footer class="site-footer"><p>Made for looking a little closer.</p><p>Local processing · No account · No uploads</p></footer>
+    <noscript><p class="message error">This tool needs JavaScript for local image processing. Please enable it in your browser.</p></noscript>
+  </body>
+</html>
