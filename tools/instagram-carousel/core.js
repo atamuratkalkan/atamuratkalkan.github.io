@@ -1,6 +1,8 @@
 // All geometry is shared by the framing previews and the full-resolution export.
 export const LIMITS = Object.freeze({ masterPixels: 24_000_000, masterEdge: 16384, slideEdge: 8192 });
 export const PRESETS = Object.freeze({ "3:4": [3, 4], "4:5": [4, 5], "1:1": [1, 1], landscape: [1080, 566] });
+// Native Instagram carousels; third-party publishing APIs may have lower limits.
+export const INSTAGRAM_CAROUSEL_LIMIT = 20;
 
 export function dimensions({ preset, customKind = "ratio", customWidth, customHeight, outputWidth = 1080 }) {
   const pair = PRESETS[preset] || [Number(customWidth), Number(customHeight)];
@@ -14,14 +16,22 @@ export function dimensions({ preset, customKind = "ratio", customWidth, customHe
   return { width, height, ratio: width / height };
 }
 
-export function validateSequence(width, height, count) {
-  if (!Number.isInteger(count) || count < 2 || count > 10) throw new Error("Choose 2 to 10 detail slides.");
+export function validateSequence(width, height, columns, rows = 1) {
+  if (![columns, rows].every(n => Number.isInteger(n) && n >= 1 && n <= 10)) throw new Error("Choose 1 to 10 columns and 1 to 10 rows.");
   if (![width, height].every(n => Number.isSafeInteger(n) && n >= 64 && n <= LIMITS.slideEdge)) throw new Error("Invalid slide dimensions.");
-  const masterWidth = width * count;
-  if (masterWidth > LIMITS.masterEdge || masterWidth * height > LIMITS.masterPixels) {
-    throw new Error("This panorama is too large for safe browser processing. Reduce the output resolution or the number of slides.");
+  const masterWidth = width * columns, masterHeight = height * rows;
+  if (Math.max(masterWidth, masterHeight) > LIMITS.masterEdge || masterWidth * masterHeight > LIMITS.masterPixels) {
+    throw new Error("This master grid is too large for safe browser processing. Reduce the output resolution, columns or rows.");
   }
-  return { width: masterWidth, height };
+  return { width: masterWidth, height: masterHeight };
+}
+
+export function gridTiles(width, height, columns, rows = 1) {
+  validateSequence(width, height, columns, rows);
+  return Array.from({ length: columns * rows }, (_, index) => {
+    const row = Math.floor(index / columns), column = index % columns;
+    return { index, row, column, x: column * width, y: row * height, width, height };
+  });
 }
 
 export function geometry(sourceWidth, sourceHeight, width, height, framing) {
@@ -61,8 +71,8 @@ export function drawComposition(canvas, source, width, height, framing, backgrou
   return canvas;
 }
 
-export function filename(index, kind, format) {
-  return `${String(index + 1).padStart(2, "0")}-${kind}.${format === "image/png" ? "png" : "jpg"}`;
+export function filename(index, kind, format, digits = 2) {
+  return `${String(index + 1).padStart(digits, "0")}-${kind}.${format === "image/png" ? "png" : "jpg"}`;
 }
 
 export function encodeCanvas(canvas, format, quality) {
@@ -78,34 +88,36 @@ function abortIfNeeded(signal) {
   if (signal?.aborted) throw new DOMException("Generation cancelled.", "AbortError");
 }
 
-export async function generateSequence({ source, width, height, count, includeCover, cover, detail, background, format, quality, signal, onProgress = () => {} }) {
-  const size = validateSequence(width, height, count);
+export async function generateSequence({ source, width, height, count, columns = count ?? 3, rows = 1, includeCover, cover, detail, background, format, quality, signal, onProgress = () => {} }) {
+  // `count` remains an alias for legacy single-row callers; the UI uses columns/rows.
+  const size = validateSequence(width, height, columns, rows);
   if (!["image/jpeg", "image/png"].includes(format)) throw new Error("Choose JPEG or PNG.");
   const master = document.createElement("canvas");
   const tile = document.createElement("canvas");
   const files = [];
-  const total = count + Number(includeCover);
+  const total = columns * rows + Number(includeCover);
+  const digits = Math.max(2, String(total).length);
   try {
     abortIfNeeded(signal);
     if (includeCover) {
       drawComposition(tile, source, width, height, cover, background);
       const blob = await encodeCanvas(tile, format, quality);
-      files.push({ blob, kind: "cover", filename: filename(0, "cover", format) });
+      files.push({ blob, kind: "cover", filename: filename(0, "cover", format, digits) });
       onProgress(files.length, total);
     }
     abortIfNeeded(signal);
-    // Draw exactly once at final resolution. NEVER reframe individual details.
+    // Draw exactly once at final resolution. NEVER reframe individual grid tiles.
     drawComposition(master, source, size.width, size.height, detail, background);
     tile.width = width;
     tile.height = height;
     const ctx = context2d(tile);
-    for (let index = 0; index < count; index++) {
+    for (const cut of gridTiles(width, height, columns, rows)) {
       abortIfNeeded(signal);
       ctx.clearRect(0, 0, width, height);
-      // Integer cuts [i*w, (i+1)*w) partition the master without overlap or gaps.
-      ctx.drawImage(master, index * width, 0, width, height, 0, 0, width, height);
+      // Row-major integer rectangles partition BOTH axes without overlap or gaps.
+      ctx.drawImage(master, cut.x, cut.y, width, height, 0, 0, width, height);
       const blob = await encodeCanvas(tile, format, quality);
-      files.push({ blob, kind: "detail", filename: filename(files.length, "detail", format) });
+      files.push({ blob, kind: "slide", row: cut.row, column: cut.column, tileIndex: cut.index, filename: filename(files.length, "slide", format, digits) });
       onProgress(files.length, total);
       await new Promise(resolve => setTimeout(resolve, 0));
     }

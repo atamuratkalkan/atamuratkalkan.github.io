@@ -57,6 +57,10 @@ legend span, .settings-heading span { color: var(--ink); font-weight: 600; margi
 .field-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 .colour-field { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 12px; }
 .settings-divider { height: 1px; background: var(--line); margin: 28px 0 23px; }
+.split-heading { margin: 23px 0 0; color: var(--ink); font-weight: 600; }
+.preview-modes { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 24px; }
+.preview-modes button { font-size: 12px; }
+.preview-modes button[aria-pressed="true"] { border-color: var(--ink); background: var(--surface); }
 #generate { width: 100%; margin-top: 26px; }
 .status { min-height: 40px; margin-top: 12px; color: var(--muted); font-size: 11px; }
 .message { padding: 10px 0; margin: 12px 0; font-size: 12px; }
@@ -85,11 +89,12 @@ legend span, .settings-heading span { color: var(--ink); font-weight: 600; margi
 .button-row button { font-size: 11px; padding: 8px 12px; }
 .panorama-panel { margin-top: 38px; padding-top: 25px; border-top: 1px solid var(--line); }
 .panorama-viewport { overflow-x: auto; margin-top: 16px; padding-bottom: 10px; overscroll-behavior-x: contain; }
-.panorama-stage { width: 100%; }
-.cut-lines { position: absolute; inset: 0; display: flex; pointer-events: none; }
-.cut-lines span { position: relative; flex: 1; border-right: 1px dashed rgb(255 255 255 / 90%); box-shadow: 1px 0 0 rgb(0 0 0 / 35%); }
-.cut-lines span:last-child { border: 0; box-shadow: none; }
-.cut-lines span::before { content: attr(data-label); position: absolute; top: 8px; left: 8px; padding: 1px 5px; font-size: 10px; background: #252525; color: #f5f1e8; }
+.panorama-stage { width: 100%; margin-inline: auto; }
+.cut-lines { position: absolute; inset: 0; display: grid; pointer-events: none; }
+.cut-lines span { position: relative; min-width: 0; border-right: 1px dashed rgb(255 255 255 / 90%); border-bottom: 1px dashed rgb(255 255 255 / 90%); }
+.cut-lines span[data-row-end="true"] { border-right: 0; }
+.cut-lines span[data-last-row="true"] { border-bottom: 0; }
+.cut-lines span::before { content: attr(data-label); position: absolute; top: 4px; left: 4px; padding: 1px 4px; font-size: 10px; background: #252525; color: #f5f1e8; }
 .panorama-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 25px; }
 .panorama-controls .button-row { grid-column: 1 / -1; }
 .results { margin-top: 45px; padding-top: 30px; border-top: 1px solid var(--line); }
@@ -112,6 +117,8 @@ legend span, .settings-heading span { color: var(--ink); font-weight: 600; margi
 .slide-file img { display: block; width: 64px; height: auto; }
 .slide-file p { font-size: 12px; margin-bottom: 4px; }
 .slide-file small { display: block; color: var(--muted); font-size: 10px; }
+.row-transition { color: var(--accent); font-size: 12px; line-height: 1.6; margin: 12px 0; }
+.slide-file--row-start { padding-top: 14px; border-top: 1px solid var(--line); }
 .slide-file button { font-size: 11px; margin-top: 6px; min-height: 36px; padding: 5px 10px; }
 .site-footer { display: flex; justify-content: space-between; gap: 20px; border-top: 1px solid var(--line); margin-top: 65px; padding-block: 23px; color: var(--muted); font-size: 11px; }
 .site-footer p { margin: 0; }

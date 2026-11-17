@@ -6,8 +6,8 @@
     <meta name="theme-color" content="#f5f1e8">
     <meta name="description" content="Prepare artwork covers and seamless Instagram carousel slides. Private, local image processing in your browser.">
     <title>Carousel Studio — Ata Murat Kalkan</title>
-    <link rel="stylesheet" href="styles.css">
-    <script type="module" src="app.js"></script>
+    <link rel="stylesheet" href="styles.css?v=multi-row-1">
+    <script type="module" src="app.js?v=multi-row-1"></script>
   </head>
   <body>
     <a class="skip-link" href="#workspace">Skip to image previews</a>
@@ -55,13 +55,18 @@
               <output id="dimensions" class="dimensions" aria-live="polite">1080 × 1440 px per slide</output>
               <p id="ratio-warning" class="message warning" hidden></p>
               <p id="size-error" class="message error" hidden></p>
-              <label for="detail-count">Continuous detail slides</label>
-              <select id="detail-count"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select>
+              <h2 class="settings-heading split-heading">Multi-Row Split</h2>
+              <div class="field-pair">
+                <div><label for="columns">Columns</label><select id="columns"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></div>
+                <div><label for="rows">Rows</label><select id="rows"><option selected>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></div>
+              </div>
+              <output id="tile-total" class="dimensions" aria-live="polite">3 × 1 = 3 grid tiles · 4 exported slides including cover</output>
               <label class="check"><input id="include-cover" type="checkbox" checked> Add the independent cover as slide 1</label>
+              <p id="carousel-limit-warning" class="message warning" role="status" hidden></p>
               <label for="background">Background colour</label>
               <div class="colour-field"><input id="background" type="color" value="#f5f1e8"><output id="background-value">#f5f1e8</output></div>
-              <label class="check"><input id="auto-centre" type="checkbox" checked> Re-centre when changing format or slide count</label>
-              <p class="hint">The cover is a separate composition. Only the detail slides connect edge to edge.</p>
+              <label class="check"><input id="auto-centre" type="checkbox" checked> Re-centre when changing format, columns or rows</label>
+              <p class="hint">Read left to right, then start the next row at the left. Joins within a row are seamless; row changes are intentional jumps. The cover is separate.</p>
               <div class="settings-divider"></div>
               <h2 class="settings-heading">02 <span>Export</span></h2>
               <label for="file-format">File format</label>
@@ -77,6 +82,10 @@
         <div id="workspace" class="workspace" tabindex="-1">
           <div class="workspace-heading"><h2>Framing desk</h2><span id="source-info">No image selected</span></div>
           <div id="empty-state" class="empty-state"><p>Your artwork belongs here.</p><span>Choose a photograph to start composing.</span></div>
+          <div id="preview-modes" class="preview-modes" role="group" aria-label="Preview mode" hidden>
+            <button type="button" id="grid-mode" aria-pressed="true" aria-controls="grid-panel">Grid Preview</button>
+            <button type="button" id="carousel-mode" aria-pressed="false" aria-controls="results carousel-pending">Carousel Preview</button>
+          </div>
           <div id="editors" hidden>
             <div class="cover-row">
               <section class="original-panel" aria-labelledby="original-heading">
@@ -95,28 +104,31 @@
                 </div>
               </section>
             </div>
-            <section class="panorama-panel" aria-labelledby="panorama-heading">
-              <div class="panel-title"><h3 id="panorama-heading">The continuous view</h3><span id="master-dimensions">One master, three cuts</span></div>
+            <section class="panorama-panel" id="grid-panel" aria-labelledby="panorama-heading">
+              <div class="panel-title"><h3 id="panorama-heading">Grid Preview</h3><span id="master-dimensions">One master, three tiles</span></div>
               <p id="edit-instructions" class="hint">Drag the image to reframe it, or use the sliders. Keyboard: arrow keys move, + / − zoom. Dashed lines mark the cuts; they are not exported.</p>
-              <div class="panorama-viewport"><div class="editor-stage panorama-stage" id="detail-stage" tabindex="0" role="group" aria-label="Continuous panorama framing. Use arrow keys to reposition; plus and minus to zoom." aria-describedby="edit-instructions"><canvas id="detail-preview" role="img" aria-label="Continuous panorama framing preview"></canvas><div id="cut-lines" class="cut-lines" aria-hidden="true"></div></div></div>
+              <div class="panorama-viewport"><div class="editor-stage panorama-stage" id="detail-stage" tabindex="0" role="group" aria-label="Master grid framing. Use arrow keys to reposition; plus and minus to zoom." aria-describedby="edit-instructions grid-order"><canvas id="detail-preview" role="img" aria-label="Complete master grid framing preview"></canvas><div id="cut-lines" class="cut-lines" aria-hidden="true"></div></div></div>
               <div class="editor-controls panorama-controls" data-editor="detail">
-                <label>Framing<select data-control="mode" aria-label="Detail sequence framing mode"><option value="fill">Crop — fill the panorama</option><option value="fit">Fit — entire artwork</option></select></label>
+                <label>Framing<select data-control="mode" aria-label="Detail sequence framing mode"><option value="fill">Crop — fill the grid</option><option value="fit">Fit — entire artwork</option></select></label>
                 <label>Zoom <output data-value="zoom">100%</output><input data-control="zoom" aria-label="Detail sequence zoom" type="range" min="0.5" max="4" step="0.01" value="1"></label>
                 <label>Horizontal<input data-control="x" aria-label="Detail horizontal position" type="range" min="-1" max="1" step="0.01" value="0"></label>
                 <label>Vertical<input data-control="y" aria-label="Detail vertical position" type="range" min="-1" max="1" step="0.01" value="0"></label>
-                <div class="button-row"><button type="button" data-action="centre">Centre</button><button type="button" data-action="reset">Reset panorama</button></div>
+                <div class="button-row"><button type="button" data-action="centre">Centre</button><button type="button" data-action="reset">Reset grid</button></div>
               </div>
-              <p class="hint">A tall painting spread across several portrait slides is cropped vertically in fill mode. Use fit mode to keep it all, or reduce the number of detail slides.</p>
+              <p id="grid-order" class="hint">Numbers match the exported files. The optional cover is not a grid tile. Fit keeps the entire artwork; Crop fills the complete grid and may trim its edges. More rows change the master composition, not the aspect ratio of each slide.</p>
             </section>
           </div>
+          <p id="carousel-pending" class="hint" hidden>Generate the carousel to inspect and download these settings. Switch to Grid Preview to adjust framing.</p>
           <section id="results" class="results" aria-labelledby="results-heading" hidden>
             <div class="workspace-heading"><div><p class="eyebrow">Ready to share</p><h2 id="results-heading">Your carousel</h2></div><button type="button" id="download-zip" class="primary">Download all as ZIP</button></div>
             <p id="export-summary" class="hint"></p>
             <div class="result-layout">
               <section class="simulation" aria-labelledby="simulation-heading">
-                <h3 id="simulation-heading">Swipe through</h3>
+                <h3 id="simulation-heading">Carousel Preview</h3>
                 <div id="carousel" class="carousel" role="region" aria-label="Generated carousel. Swipe, or use left and right arrow keys." tabindex="0"></div>
                 <div class="carousel-navigation"><button type="button" id="previous" aria-label="Previous slide">←</button><span id="slide-counter" role="status" aria-live="polite">1 / 4</span><button type="button" id="next" aria-label="Next slide">→</button></div>
+                <p id="slide-context" class="hint" role="status" aria-live="polite"></p>
+                <p id="row-transition" class="row-transition" role="status" aria-live="polite" hidden></p>
                 <div id="carousel-dots" class="carousel-dots" role="group" aria-label="Choose a slide"></div>
               </section>
               <div><h3>Individual files</h3><div id="slide-list" class="slide-list"></div></div>

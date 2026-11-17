@@ -1,4 +1,4 @@
-import { dimensions, validateSequence, geometry, drawComposition, generateSequence } from "./core.js";
+import { dimensions, validateSequence, geometry, drawComposition, generateSequence, INSTAGRAM_CAROUSEL_LIMIT } from "./core.js?v=multi-row-1";
 import { makeZip } from "./zip.js";
 
 const $ = id => document.getElementById(id);
@@ -6,7 +6,7 @@ const state = {
   source: null, sourceURL: null, files: [], busy: false, loadToken: 0,
   cover: { mode: "fit", zoom: 1, x: 0, y: 0 },
   detail: { mode: "fill", zoom: 1, x: 0, y: 0 },
-  settings: null, geometryKey: "", active: 0, frame: 0, controller: null,
+  settings: null, resultSettings: null, geometryKey: "", active: 0, frame: 0, controller: null, previewMode: "grid",
   downloadURLs: new Set()
 };
 
@@ -18,10 +18,28 @@ function error(message = "") {
 function releaseResults() {
   for (const file of state.files) URL.revokeObjectURL(file.url);
   state.files = [];
+  state.resultSettings = null;
   $("results").hidden = true;
   $("carousel").replaceChildren();
   $("slide-list").replaceChildren();
   $("carousel-dots").replaceChildren();
+  syncPreviewMode();
+}
+
+function syncPreviewMode() {
+  const carousel = state.previewMode === "carousel";
+  $("preview-modes").hidden = !state.source;
+  $("grid-mode").setAttribute("aria-pressed", String(!carousel));
+  $("carousel-mode").setAttribute("aria-pressed", String(carousel));
+  $("grid-panel").hidden = carousel;
+  $("results").hidden = !carousel || !state.files.length;
+  $("carousel-pending").hidden = !state.source || !carousel || !!state.files.length;
+}
+
+function setPreviewMode(mode) {
+  state.previewMode = mode;
+  syncPreviewMode();
+  if (mode === "carousel" && state.files.length) $("carousel").scrollLeft = state.active * $("carousel").clientWidth;
 }
 
 function dirty() {
@@ -36,7 +54,7 @@ function readSettings() {
     customWidth: $("custom-width").value, customHeight: $("custom-height").value,
     outputWidth: $("resolution").value === "custom" ? Number($("output-width").value) : Number($("resolution").value)
   });
-  return { ...size, count: Number($("detail-count").value), includeCover: $("include-cover").checked,
+  return { ...size, columns: Number($("columns").value), rows: Number($("rows").value), includeCover: $("include-cover").checked,
     background: $("background").value, format: $("file-format").value, quality: Number($("quality").value) / 100 };
 }
 
@@ -53,24 +71,31 @@ function updateSettings() {
   $("background-value").textContent = $("background").value;
   $("cover-panel").hidden = !$("include-cover").checked;
   $("ratio-warning").hidden = true;
+  $("carousel-limit-warning").hidden = true;
   $("size-error").hidden = true;
   let valid = false;
   try {
     state.settings = readSettings();
-    const { width, height, ratio, count } = state.settings;
+    const { width, height, ratio, columns, rows, includeCover } = state.settings;
+    const tiles = columns * rows, total = tiles + Number(includeCover);
     $("dimensions").textContent = `${width} × ${height} px per slide`;
-    $("master-dimensions").textContent = `${width * count} × ${height} px · ${count} cuts`;
+    $("tile-total").textContent = `${columns} × ${rows} = ${tiles} grid ${tiles === 1 ? "tile" : "tiles"} · ${total} exported ${total === 1 ? "slide" : "slides"}${includeCover ? " including cover" : " (no cover)"}`;
+    $("master-dimensions").textContent = `${width * columns} × ${height * rows} px · ${tiles} tiles`;
+    if (total > INSTAGRAM_CAROUSEL_LIMIT) {
+      $("carousel-limit-warning").textContent = `${total} exported slides exceed Instagram’s ${INSTAGRAM_CAROUSEL_LIMIT}-slide carousel limit (cover included). You can still export; use fewer rows/columns for one post. Some publishing tools have lower limits.`;
+      $("carousel-limit-warning").hidden = false;
+    }
     // Feed guidance, not an export restriction. See the maintenance README.
     if (ratio < 0.75 - 0.0001 || ratio > 1.91 + 0.0001) {
       $("ratio-warning").textContent = "Outside Instagram’s usual feed range (3:4 to 1.91:1). Instagram may crop this format; you can still export it here.";
       $("ratio-warning").hidden = false;
     }
-    const key = `${width}/${height}/${count}`;
+    const key = `${width}/${height}/${columns}/${rows}`;
     if (state.geometryKey && state.geometryKey !== key && $("auto-centre").checked) {
       for (const editor of ["cover", "detail"]) { state[editor].x = state[editor].y = 0; syncControls(editor); }
     }
     state.geometryKey = key;
-    validateSequence(width, height, count);
+    validateSequence(width, height, columns, rows);
     valid = true;
   } catch (e) {
     $("size-error").textContent = e.message;
@@ -78,6 +103,7 @@ function updateSettings() {
     if (!state.settings) $("dimensions").textContent = "Enter valid output dimensions.";
   }
   $("generate").disabled = !state.source || !valid || state.busy;
+  syncPreviewMode();
   scheduleDraft();
 }
 
@@ -99,12 +125,17 @@ function renderDraft() {
   try {
     drawComposition($("cover-preview"), source, s.width, s.height, state.cover, s.background, 700);
     $("cover-stage").style.aspectRatio = `${s.width} / ${s.height}`;
-    drawComposition($("detail-preview"), source, s.width * s.count, s.height, state.detail, s.background, 2400);
-    $("detail-stage").style.aspectRatio = `${s.width * s.count} / ${s.height}`;
-    $("detail-stage").style.minWidth = `${s.count * 150}px`;
-    $("cut-lines").replaceChildren(...Array.from({ length: s.count }, (_, i) => {
+    const masterWidth = s.width * s.columns, masterHeight = s.height * s.rows;
+    drawComposition($("detail-preview"), source, masterWidth, masterHeight, state.detail, s.background, 2400);
+    $("detail-stage").style.aspectRatio = `${masterWidth} / ${masterHeight}`;
+    $("detail-stage").style.maxWidth = `${640 * masterWidth / masterHeight}px`;
+    $("cut-lines").style.gridTemplateColumns = `repeat(${s.columns}, minmax(0, 1fr))`;
+    $("cut-lines").style.gridTemplateRows = `repeat(${s.rows}, minmax(0, 1fr))`;
+    $("cut-lines").replaceChildren(...Array.from({ length: s.columns * s.rows }, (_, i) => {
       const cut = document.createElement("span");
-      cut.dataset.label = `${String(i + 1 + Number(s.includeCover)).padStart(2, "0")} · detail`;
+      cut.dataset.label = String(i + 1 + Number(s.includeCover)).padStart(Math.max(2, String(s.columns * s.rows + Number(s.includeCover)).length), "0");
+      cut.dataset.rowEnd = String(i % s.columns === s.columns - 1);
+      cut.dataset.lastRow = String(Math.floor(i / s.columns) === s.rows - 1);
       return cut;
     }));
   } catch (e) { error(e.message); }
@@ -158,6 +189,7 @@ async function loadImage(file) {
     state.sourceURL = fallbackURL || null;
     state.cover = { mode: "fit", zoom: 1, x: 0, y: 0 };
     state.detail = { mode: "fill", zoom: 1, x: 0, y: 0 };
+    state.previewMode = "grid";
     syncControls("cover"); syncControls("detail");
     $("source-info").textContent = `${source.width} × ${source.height} px`;
     $("source-name").textContent = file.name;
@@ -165,7 +197,7 @@ async function loadImage(file) {
     $("editors").hidden = false;
     drawComposition($("original-preview"), source, source.width, source.height, { mode: "fit", zoom: 1, x: 0, y: 0 }, "#eee8dc", 600);
     updateSettings();
-    await generate();
+    await generate({ showCarousel: false });
   } catch (e) {
     if (source !== state.source) source?.close?.();
     if (fallbackURL && fallbackURL !== state.sourceURL) URL.revokeObjectURL(fallbackURL);
@@ -174,7 +206,7 @@ async function loadImage(file) {
   } finally { $("choose-image").disabled = state.busy; $("image-file").value = ""; }
 }
 
-async function generate() {
+async function generate({ showCarousel = true } = {}) {
   if (!state.source || state.busy || $("generate").disabled) return;
   error();
   releaseResults();
@@ -188,7 +220,8 @@ async function generate() {
     });
     state.files = files.map(file => ({ ...file, url: URL.createObjectURL(file.blob) }));
     renderResults(settings);
-    const g = geometry(state.source.width, state.source.height, settings.width * settings.count, settings.height, state.detail);
+    if (showCarousel) setPreviewMode("carousel");
+    const g = geometry(state.source.width, state.source.height, settings.width * settings.columns, settings.height * settings.rows, state.detail);
     $("status").textContent = `${files.length} slides ready.${g.scale > 1.01 ? " The detail view enlarges the source; a higher-resolution original will look sharper." : ""}`;
     $("generate").textContent = "Regenerate carousel";
   } catch (e) {
@@ -204,35 +237,48 @@ function download(url, name) {
 }
 
 function renderResults(settings) {
-  const { width, height, includeCover } = settings;
-  $("export-summary").textContent = `${state.files.length} files · ${width} × ${height} px each · ${includeCover ? "Independent cover, followed by continuous details." : "Continuous detail sequence only."} These previews use the actual encoded download files.`;
+  const { width, height, includeCover, columns, rows } = settings;
+  state.resultSettings = settings;
+  $("export-summary").textContent = `${state.files.length} files · ${width} × ${height} px each · ${columns} × ${rows} grid, left to right, row by row.${includeCover ? " Independent cover first." : " No cover."} ${rows > 1 ? "Each new row jumps back to the left; only joins within a row are horizontally seamless." : "The grid tiles form one continuous horizontal sequence."} Previews use the actual download files.`;
   state.files.forEach((file, index) => {
     const figure = document.createElement("figure");
     const image = document.createElement("img");
     image.src = file.url; image.width = width; image.height = height;
-    image.alt = `Slide ${index + 1}: ${file.kind === "cover" ? "full-artwork cover" : `continuous detail ${index + 1 - Number(includeCover)}`}`;
+    const description = file.kind === "cover" ? "independent full-artwork cover" : `grid tile ${file.tileIndex + 1}, row ${file.row + 1}, column ${file.column + 1}`;
+    image.alt = `Slide ${index + 1}: ${description}`;
     figure.append(image); $("carousel").append(figure);
     const dot = document.createElement("button"); dot.type = "button"; dot.textContent = String(index + 1);
-    dot.setAttribute("aria-label", `Go to slide ${index + 1}, ${file.kind}`);
+    dot.setAttribute("aria-label", `Go to slide ${index + 1}, ${description}`);
     dot.addEventListener("click", () => goToSlide(index)); $("carousel-dots").append(dot);
     const item = document.createElement("div"); item.className = "slide-file";
+    if (file.kind === "slide" && file.column === 0 && file.row > 0) item.classList.add("slide-file--row-start");
     const thumb = image.cloneNode(); thumb.alt = "";
     const info = document.createElement("div");
     const name = document.createElement("p"); name.textContent = file.filename;
     const small = document.createElement("small"); small.textContent = `${width} × ${height} px · ${(file.blob.size / 1024 / 1024).toFixed(2)} MB`;
+    const position = document.createElement("small");
+    position.textContent = file.kind === "cover" ? "Independent cover · outside the grid" : `Grid tile ${file.tileIndex + 1} · Row ${file.row + 1}, column ${file.column + 1}${file.column === 0 && file.row > 0 ? " · New row: jump to the left" : ""}`;
     const button = document.createElement("button"); button.type = "button";
     button.textContent = file.kind === "cover" ? "Download cover" : "Download slide";
     button.setAttribute("aria-label", `Download ${file.filename}`);
     button.addEventListener("click", () => download(file.url, file.filename));
-    info.append(name, small, button); item.append(thumb, info); $("slide-list").append(item);
+    info.append(name, position, small, button); item.append(thumb, info); $("slide-list").append(item);
   });
-  $("results").hidden = false;
   $("carousel").scrollLeft = 0;
   state.active = 0; syncCarousel();
+  syncPreviewMode();
 }
 
 function syncCarousel() {
+  const file = state.files[state.active];
+  if (!file) return;
+  const s = state.resultSettings;
   $("slide-counter").textContent = `${state.active + 1} / ${state.files.length}`;
+  $("slide-context").textContent = file.kind === "cover" ? "Independent cover — not part of the grid." : `Grid tile ${file.tileIndex + 1} of ${s.columns * s.rows} · Row ${file.row + 1} of ${s.rows} · Column ${file.column + 1} of ${s.columns}`;
+  const start = file.kind === "slide" && file.column === 0 && file.row > 0;
+  const end = file.kind === "slide" && file.column === s.columns - 1 && file.row < s.rows - 1;
+  $("row-transition").hidden = !start && !end;
+  $("row-transition").textContent = start ? `Row break: row ${file.row + 1} starts at the left edge. This is an intentional jump, not a horizontal seamless join.${end ? " The next slide also starts a new row." : ""}` : end ? `End of row ${file.row + 1}. The next slide jumps to the left edge of row ${file.row + 2}, not a horizontal seamless join.` : "";
   $("previous").disabled = state.active === 0;
   $("next").disabled = state.active >= state.files.length - 1;
   [...$("carousel-dots").children].forEach((dot, index) => dot.setAttribute("aria-pressed", String(index === state.active)));
@@ -245,14 +291,16 @@ function goToSlide(index) {
 }
 
 $("carousel").addEventListener("scroll", () => {
-  if (!state.files.length) return;
-  state.active = Math.round($("carousel").scrollLeft / $("carousel").clientWidth); syncCarousel();
+  if (!state.files.length || !$("carousel").clientWidth) return;
+  state.active = clamp(Math.round($("carousel").scrollLeft / $("carousel").clientWidth), 0, state.files.length - 1); syncCarousel();
 }, { passive: true });
 $("carousel").addEventListener("keydown", event => {
   if (event.key === "ArrowLeft" || event.key === "ArrowRight") { event.preventDefault(); goToSlide(state.active + (event.key === "ArrowRight" ? 1 : -1)); }
 });
 $("previous").addEventListener("click", () => goToSlide(state.active - 1));
 $("next").addEventListener("click", () => goToSlide(state.active + 1));
+$("grid-mode").addEventListener("click", () => setPreviewMode("grid"));
+$("carousel-mode").addEventListener("click", () => setPreviewMode("carousel"));
 
 $("download-zip").addEventListener("click", async () => {
   if (state.busy || !state.files.length) return;
@@ -294,11 +342,11 @@ for (const editor of ["cover", "detail"]) {
   });
   stage.addEventListener("pointermove", event => {
     if (!drag || drag.id !== event.pointerId || state.busy) return;
-    const s = state.settings, width = s.width * (editor === "detail" ? s.count : 1);
-    const g = geometry(state.source.width, state.source.height, width, s.height, state[editor]);
+    const s = state.settings, width = s.width * (editor === "detail" ? s.columns : 1), height = s.height * (editor === "detail" ? s.rows : 1);
+    const g = geometry(state.source.width, state.source.height, width, height, state[editor]);
     const box = stage.getBoundingClientRect();
     if (g.travelX > 0.01) state[editor].x = clamp(state[editor].x + (event.clientX - drag.x) * width / box.width / g.travelX, -1, 1);
-    if (g.travelY > 0.01) state[editor].y = clamp(state[editor].y + (event.clientY - drag.y) * s.height / box.height / g.travelY, -1, 1);
+    if (g.travelY > 0.01) state[editor].y = clamp(state[editor].y + (event.clientY - drag.y) * height / box.height / g.travelY, -1, 1);
     drag.x = event.clientX; drag.y = event.clientY;
     syncControls(editor); dirty(); scheduleDraft();
   });
@@ -344,5 +392,5 @@ window.addEventListener("pagehide", event => {
   state.loadToken++; state.controller?.abort(); disposeSource(); releaseResults();
   for (const url of state.downloadURLs) URL.revokeObjectURL(url);
 });
-new ResizeObserver(() => { if (state.files.length) $("carousel").scrollLeft = state.active * $("carousel").clientWidth; }).observe($("workspace"));
+new ResizeObserver(() => { if (state.files.length && !$("results").hidden && $("carousel").clientWidth) $("carousel").scrollLeft = state.active * $("carousel").clientWidth; }).observe($("workspace"));
 updateSettings();
