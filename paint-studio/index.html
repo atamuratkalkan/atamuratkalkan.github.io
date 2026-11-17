@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paint Studio | Ata Murat Kalkan</title>
+  <meta name="description" content="A local, private painting companion: broad-to-detail reference stages and estimated pigment mixes from your own paints.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="stylesheet" href="styles.css?v=1">
+  <script type="module" src="app.js?v=1"></script>
+</head>
+<body>
+  <a class="skip-link" href="#workspace">Skip to painting workspace</a>
+  <header class="studio-header">
+    <div><a class="artist-name" href="../">Ata Murat Kalkan</a><span class="header-note">Tools for the studio</span></div>
+    <nav aria-label="Studio links"><a href="../">← Return to portfolio</a><a href="../tools/instagram-carousel/">Carousel Studio</a><button id="help-open" class="text-button" type="button">Help & model notes</button></nav>
+  </header>
+  <main>
+    <div class="introduction">
+      <div><p class="eyebrow">A local painting companion</p><h1>Paint Studio</h1><p>See the broad shapes. Find your colours. Build the detail.</p></div>
+      <p class="privacy-note">Your reference stays in this browser.<br>No upload, account or cloud processing.</p>
+    </div>
+    <section class="project-bar" aria-label="Project and file controls">
+      <label class="project-name">Study name<input id="project-name" maxlength="160" value="Untitled study"></label>
+      <div class="project-actions">
+        <button id="upload-open" type="button">Choose reference</button>
+        <button id="save-project" type="button" disabled>Save locally</button>
+        <button id="open-project" type="button">Open saved</button>
+        <button id="import-project" type="button">Import project</button>
+        <button id="export-project" type="button" disabled>Export project</button>
+      </div>
+      <input id="image-file" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+      <input id="project-file" type="file" accept="application/json,.json" hidden>
+    </section>
+    <div class="status-line"><p id="status" role="status" aria-live="polite">Choose a reference, check your paints, then generate a painting plan.</p><button id="cancel-job" class="text-button" type="button" hidden>Cancel</button><progress id="job-progress" max="1" value="0" aria-label="Processing progress" hidden></progress></div>
+    <div class="studio-grid">
+      <aside class="settings-area" aria-label="Paints and painting plan">
+        <details id="paints-panel">
+          <summary>My paints <span id="paint-count" class="summary-note"></span></summary>
+          <p class="small-note">Generic, estimated colours to start. Enable only tubes you own. Brand and pigment codes are unknown until you add them.</p>
+          <div class="inline-actions"><button id="add-paint" type="button">Add paint</button><button id="import-palette" type="button">Import</button><button id="export-palette" type="button">Export JSON</button></div>
+          <input id="palette-file" type="file" accept="application/json,.json" hidden>
+          <div id="paint-list" class="paint-list"></div>
+          <p class="small-note">Swatch and strength are estimates, not measured tube calibration. Transparency is recorded but is not a glazing simulation.</p>
+        </details>
+        <details id="plan-panel" open>
+          <summary>Painting plan</summary>
+          <div class="settings-fields">
+            <label>Visual stages <output id="stage-count-output">5</output><input id="stage-count" type="range" min="3" max="8" value="5"></label>
+            <label>Overall detail <output id="detail-output">3</output><input id="detail" type="range" min="1" max="5" value="3"></label>
+            <label>Simplification <output id="simplification-output">3</output><input id="simplification" type="range" min="1" max="5" value="3"></label>
+            <label>Minimum region (working pixels)<input id="min-region" type="number" min="1" max="500" step="1" value="24"></label>
+            <label>Early-stage interpretation<select id="underpainting"><option value="tonal">Tonal foundation</option><option value="ground">Ground-colour foundation</option><option value="none">Full colour from the start</option></select></label>
+            <label id="ground-label" hidden>Ground colour<input id="ground" type="color" value="#8a6f4d"></label>
+            <label>Working approach<select id="method"><option value="mixed">Mixed</option><option value="wet">Wet-on-wet</option><option value="separate">Separate sessions</option></select></label>
+          </div>
+          <button id="generate" class="primary full-width" type="button" disabled>Generate painting stages</button>
+          <p id="plan-notice" class="small-note">Stages develop one composition, not transparent layers or reconstructed brushstrokes.</p>
+          <div class="corrections"><h3>Keep the important things</h3><p class="small-note">Mark eyes, beaks or other small features before generating. To simplify a stage, select a region and merge a touching neighbour.</p>
+            <label>Focal radius <output id="focal-radius-output">4.5%</output><input id="focal-radius" type="range" min="0.5" max="15" step="0.5" value="4.5"></label>
+            <div class="inline-actions"><button id="protect-mode" type="button" aria-pressed="false" disabled>Mark focal detail</button><button id="clear-focals" type="button" disabled>Clear marks</button></div>
+            <div class="inline-actions"><button id="merge-mode" type="button" aria-pressed="false" disabled>Merge neighbour</button><button id="undo-merge" type="button" disabled>Undo merge</button></div>
+            <p id="correction-note" class="small-note">Tap a marked feature to remove its mark. Changes to protection take effect when you regenerate.</p>
+          </div>
+        </details>
+        <p class="small-note local-note">Save locally for this browser, or export a project file to keep a portable backup. Browser storage can be cleared by your browser.</p>
+      </aside>
+      <section class="workspace" id="workspace" aria-labelledby="workspace-title">
+        <h2 id="workspace-title" class="sr-only">Reference and painting stages</h2>
+        <div class="view-toolbar">
+          <div class="segmented" role="group" aria-label="Image view"><button id="view-original" type="button" aria-pressed="true">Original</button><button id="view-stage" type="button" aria-pressed="false" disabled>Current stage</button><button id="view-added" type="button" aria-pressed="false" disabled>New detail</button></div>
+          <label class="checkbox-label"><input id="values" type="checkbox">Values</label>
+        </div>
+        <div id="drop-zone" class="viewer-surface">
+          <canvas id="viewer" tabindex="0" role="img" aria-label="Painting reference canvas. Choose a reference to begin." aria-describedby="canvas-help"></canvas>
+          <div id="empty-state"><span class="eyebrow">01 — Your reference</span><h2>Begin with something<br>you want to look at longer.</h2><p>Drop a JPEG, PNG or WebP here.<br>Then choose your paints and build the stages.</p><button id="empty-upload" class="primary" type="button">Choose an image</button><button id="sample-reference" class="text-button" type="button">Try a synthetic bird study</button><small>No photo is sent to a server.</small></div>
+        </div>
+        <div class="canvas-controls"><div class="inline-actions"><button id="zoom-out" type="button" aria-label="Zoom out" disabled>−</button><output id="zoom-label">100%</output><button id="zoom-in" type="button" aria-label="Zoom in" disabled>+</button><button id="fit-view" type="button" disabled>Fit</button><button id="pick-center" type="button" disabled>Pick centre</button></div><span id="reference-info" class="small-note">sRGB · local processing</span></div>
+        <p id="canvas-help" class="small-note">Tap to pick a colour. Drag to pan; wheel or pinch to zoom. Keyboard: +/− zoom, arrows pan, Enter picks centre, 0 fits.</p>
+        <div class="sampling-controls"><label>Sample<select id="sample-mode"><option value="point">Point</option><option value="area">Small-area average</option></select></label><label id="sample-radius-label" hidden>Radius <output id="sample-radius-output">2</output><input id="sample-radius" type="range" min="1" max="12" value="2"></label><span id="sample-source" class="small-note">Source: original reference</span></div>
+        <section id="stage-panel" class="stage-panel" aria-labelledby="stage-title" hidden>
+          <div class="stage-heading"><span id="stage-number" class="eyebrow"></span><div class="inline-actions"><button id="previous-stage" type="button" aria-label="Previous stage">←</button><button id="next-stage" type="button" aria-label="Next stage">→</button></div></div>
+          <h2 id="stage-title"></h2><p id="stage-explanation"></p>
+          <label class="sr-only" for="stage-slider">Choose painting stage</label><input id="stage-slider" class="full-width" type="range" min="0" max="4" value="0">
+          <div id="stage-strip" class="stage-strip" role="group" aria-label="Painting stage thumbnails"></div>
+          <p id="added-note" class="small-note" hidden>Changed colours and new boundaries against pale previous-stage context. This is a visual comparison, not a physical paint-layer mask. Picks use the actual current stage, not the pale context.</p>
+          <div class="inline-actions export-actions"><button id="export-stage" type="button">Export stage PNG</button><button id="print-sheet" type="button">Print reference sheet</button></div>
+        </section>
+      </section>
+      <aside class="recipe-area" aria-labelledby="recipe-title">
+        <p class="eyebrow">From your available tubes</p><h2 id="recipe-title">A colour to work with</h2>
+        <p id="recipe-empty">Tap the reference or a stage region to find a practical starting mix.</p>
+        <section id="recipe-content" hidden>
+          <p id="pick-label" class="small-note"></p>
+          <div class="swatch-pair"><div><div id="target-swatch" class="swatch"></div><span>Target</span><code id="target-hex"></code></div><div><div id="mix-swatch" class="swatch"></div><span>Estimated mix</span><code id="mix-hex"></code></div></div>
+          <p id="match-state" class="match-state"></p><p id="mix-error" class="small-note"></p>
+          <div id="mix-parts" class="mix-parts"></div>
+          <ol id="mix-instructions"></ol>
+          <p class="small-note">Approximate parts, up to three tubes including white. Estimated mix — test a small amount first.</p>
+          <button id="favorite-recipe" class="full-width" type="button" disabled>Save recipe at this point</button>
+          <h3>Other starting points</h3><div id="alternatives" class="alternatives"></div>
+        </section>
+        <section class="favorites"><h3>Saved colour notes <span id="favorite-count"></span></h3><p id="favorites-empty" class="small-note">Saved with their point, stage and paint inventory.</p><div id="favorite-list"></div></section>
+      </aside>
+    </div>
+  </main>
+  <footer class="studio-footer"><p>A guide for looking and mixing, not a guarantee of a physical paint match.</p><a href="README.md">Documentation & data provenance</a></footer>
+  <dialog id="projects-dialog" aria-labelledby="projects-title"><div class="dialog-heading"><h2 id="projects-title">Your local studies</h2><form method="dialog"><button aria-label="Close saved projects">Close</button></form></div><p class="small-note">Saved only in this browser on this website.</p><div id="project-list"></div></dialog>
+  <dialog id="help-dialog" aria-labelledby="help-title"><div class="dialog-heading"><h2 id="help-title">A practical starting point</h2><form method="dialog"><button aria-label="Close help">Close</button></form></div>
+    <h3>Begin</h3><p>Choose a reference, enable the paints you actually own, and generate 3–8 stages. Mark a small focal feature before generating if it needs protection. Tap any stage region for a matching target and estimated recipe. Use point sampling for a region's exact displayed colour, or small-area averaging for a transition.</p>
+    <h3>What a stage means</h3><p>The plan is an edge-aware hierarchy of connected forms. Each later stage subdivides earlier shapes. It is a painterly simplification, not object recognition, a blurred photo, a transparent overlay or a recovery of an original painting's layers. Focal protection biases the hierarchy; it cannot guarantee recognition of an eye. Merge only touching regions. A merge is carried through the hierarchy; undo regenerates the plan.</p>
+    <h3>Where the colour comes from</h3><p>Original picks sample the retained sRGB reference. Stage picks sample the stage colours, including the tonal or ground-colour foundation. Values converts both the visible image and the sampled target to linear-light luminance. New detail shows actual stage changes with earlier context; picks still use the unmuted current-stage target. Small-area samples average linear sRGB, not gamma-encoded bytes.</p>
+    <h3>What “parts” means</h3><p>We use locally vendored Spectral.js 3.0.0: estimated spectral reflectance and a single-constant Kubelka–Munk model, not RGB averaging. Recipes search one, two and three enabled tubes, including white. Ratios are simplified first and then the predicted colour is recalculated and scored in OKLab. “ΔE OK” is a screen colour distance, not a probability or a physical-accuracy percentage.</p><p>Approximate parts are relative model factors, not measured grams or millilitres. Spectral.js converts them to optical concentrations using factor² × estimated strength² × luminance. The generic swatches and neutral strength of 1 are unmeasured assumptions. Real pigments, brand, knife loading, scattering, ground, illumination and drying can change the result. Test a small pile and adjust. Recorded transparency and future calibration records are not currently used as measured spectra.</p>
+    <h3>Painting materials</h3><p>Visual stages are not automatically dried coats. Wet-on-wet, separate-session and mixed guidance never sets universal drying times or medium doses. Follow the materials manufacturer's guidance for actual paint films. Ground-colour foundation is only an approximate tonal target, not a physical glazing simulation.</p>
+    <h3>Your files</h3><p>JPEG, PNG and WebP only, up to 80 MB and 100 MP. Browser orientation is respected. The oriented reference is retained at up to 2200 px on the long edge; analysis uses up to 512 px. Canvas conversion/output is sRGB. Transparent areas are placed on warm paper. For reliable colour, provide an sRGB source. No EXIF, brand measurements or cloud services are needed.</p><p>Save locally uses a separate Paint Studio IndexedDB database. Export a project for a portable backup including the image, inventory, stages and colour notes. Importing replaces the current workspace; save first if necessary.</p>
+    <p><a href="README.md">Full architecture, limitations and maintenance guide</a> · <a href="vendor/SPECTRAL-LICENSE.txt">Spectral.js MIT licence</a></p>
+  </dialog>
+  <section id="print-sheet-content" class="print-sheet" aria-label="Printable painting reference"></section>
+  <noscript><p>Paint Studio requires JavaScript. Your portfolio remains available at the return link above.</p></noscript>
+</body>
+</html>
