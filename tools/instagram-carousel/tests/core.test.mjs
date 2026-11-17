@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { dimensions, geometry, validateSequence, filename } from "../core.js";
+import { dimensions, geometry, validateSequence, gridTiles, filename, INSTAGRAM_CAROUSEL_LIMIT } from "../core.js";
 import { crc32, makeZip } from "../zip.js";
 
 test("preset and custom output dimensions", () => {
@@ -40,19 +40,51 @@ test("safe canvas budget and exact partitions", () => {
     assert.equal(ranges.at(-1)[1], master.width);
   }
   assert.throws(() => validateSequence(2160, 2880, 10));
-  assert.throws(() => validateSequence(1080, 1440, 1));
+  assert.throws(() => validateSequence(1080, 1440, 0));
+  assert.throws(() => validateSequence(1080, 1440, 3, 0));
+  assert.throws(() => validateSequence(1080, 1440, 3, 1.5));
+  assert.throws(() => validateSequence(64, 2000, 1, 10));
+});
+
+test("3×1, 3×2, 3×3 and 2×2 partitions cover both axes in reading order", () => {
+  for (const [columns, rows] of [[3, 1], [3, 2], [3, 3], [2, 2], [1, 1], [1, 3]]) {
+    // Odd tile sizes catch any rounding or boundary overlap introduced later.
+    const width = 301, height = 403;
+    const master = validateSequence(width, height, columns, rows);
+    const cuts = gridTiles(width, height, columns, rows);
+    assert.equal(cuts.length, columns * rows);
+    assert.equal(cuts.reduce((area, tile) => area + tile.width * tile.height, 0), master.width * master.height);
+    cuts.forEach((cut, index) => {
+      assert.deepEqual([cut.row, cut.column], [Math.floor(index / columns), index % columns]);
+      assert.equal(cut.x, cut.column * width);
+      assert.equal(cut.y, cut.row * height);
+      if (cut.column) assert.equal(cuts[index - 1].x + width, cut.x);
+      if (cut.row) assert.equal(cuts[index - columns].y + height, cut.y);
+    });
+    assert.equal(cuts.at(-1).x + width, master.width);
+    assert.equal(cuts.at(-1).y + height, master.height);
+  }
+});
+
+test("row-major order never snakes and the slide-limit warning is separate from memory limits", () => {
+  assert.deepEqual(gridTiles(108, 144, 3, 2).map(cut => [cut.row, cut.column]), [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2]]);
+  assert.equal(INSTAGRAM_CAROUSEL_LIMIT, 20);
+  assert.doesNotThrow(() => validateSequence(540, 720, 3, 7));
+  assert.deepEqual(validateSequence(1080, 1440, 3, 3), { width: 3240, height: 4320 });
 });
 
 test("numbered files with and without a cover", () => {
   assert.equal(filename(0, "cover", "image/jpeg"), "01-cover.jpg");
-  assert.equal(filename(1, "detail", "image/png"), "02-detail.png");
-  assert.equal(filename(0, "detail", "image/jpeg"), "01-detail.jpg");
-  assert.equal(filename(10, "detail", "image/jpeg"), "11-detail.jpg");
+  assert.equal(filename(1, "slide", "image/png"), "02-slide.png");
+  assert.equal(filename(0, "slide", "image/jpeg"), "01-slide.jpg");
+  assert.equal(filename(10, "slide", "image/jpeg"), "11-slide.jpg");
+  const largeSet = Array.from({ length: 101 }, (_, i) => filename(i, i ? "slide" : "cover", "image/png", 3));
+  assert.deepEqual([...largeSet].sort(), largeSet);
 });
 
 test("ZIP local records, CRC, filenames and central directory", async () => {
   assert.equal(crc32(new TextEncoder().encode("123456789")), 0xcbf43926);
-  const files = Array.from({ length: 4 }, (_, i) => ({ filename: filename(i, i ? "detail" : "cover", "image/png"), blob: new Blob([`test file ${i}`]) }));
+  const files = Array.from({ length: 7 }, (_, i) => ({ filename: filename(i, i ? "slide" : "cover", "image/png"), blob: new Blob([`test file ${i}`]) }));
   const archive = new Uint8Array(await (await makeZip(files)).arrayBuffer());
   const view = new DataView(archive.buffer);
   let cursor = 0;
@@ -68,6 +100,6 @@ test("ZIP local records, CRC, filenames and central directory", async () => {
   assert.equal(view.getUint32(cursor, true), 0x02014b50);
   const end = archive.length - 22;
   assert.equal(view.getUint32(end, true), 0x06054b50);
-  assert.equal(view.getUint16(end + 10, true), 4);
+  assert.equal(view.getUint16(end + 10, true), 7);
   assert.equal(view.getUint32(end + 16, true), cursor);
 });

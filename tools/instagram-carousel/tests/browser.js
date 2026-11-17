@@ -1,4 +1,4 @@
-import { drawComposition, context2d, generateSequence, dimensions } from "../core.js";
+import { drawComposition, context2d, generateSequence, dimensions } from "../core.js?v=multi-row-1";
 import { makeZip, crc32 } from "../zip.js";
 
 const list = document.getElementById("test-results"), status = document.getElementById("test-status");
@@ -27,23 +27,37 @@ async function decode(blob) {
 }
 
 const fit = { mode: "fit", zoom: 1, x: 0, y: 0 }, fill = { mode: "fill", zoom: 1.23, x: .27, y: -.41 };
-async function checkSequence(sw, sh, width, height, count, includeCover, format = "image/png") {
+async function checkSequence(sw, sh, width, height, columns, includeCover, format = "image/png", rows = 1) {
   const art = source(sw, sh), master = document.createElement("canvas"), reconstructed = document.createElement("canvas");
-  const options = { source: art, width, height, count, includeCover, cover: fit, detail: fill, background: "#e8decd", format, quality: .94 };
+  const options = { source: art, width, height, columns, rows, includeCover, cover: fit, detail: fill, background: "#e8decd", format, quality: .94 };
   const files = await generateSequence(options);
-  assert(files.length === count + Number(includeCover), "Wrong number of files");
-  assert(files[0].filename === (includeCover ? "01-cover" : "01-detail") + (format === "image/png" ? ".png" : ".jpg"), "Wrong first filename");
-  reconstructed.width = width * count; reconstructed.height = height;
+  assert(files.length === columns * rows + Number(includeCover), "Wrong number of files");
+  assert(files[0].filename === (includeCover ? "01-cover" : "01-slide") + (format === "image/png" ? ".png" : ".jpg"), "Wrong first filename");
+  reconstructed.width = width * columns; reconstructed.height = height * rows;
   const ctx = context2d(reconstructed);
   for (const [index, file] of files.entries()) {
     assert(file.blob.type === format, "Incorrect image MIME type");
     const image = await decode(file.blob);
     assert(image.width === width && image.height === height, "Slides do not share exact dimensions");
-    if (file.kind === "detail") ctx.drawImage(image, (index - Number(includeCover)) * width, 0);
+    if (file.kind === "slide") {
+      const tileIndex = index - Number(includeCover), row = Math.floor(tileIndex / columns), column = tileIndex % columns;
+      assert(file.row === row && file.column === column && file.tileIndex === tileIndex, "Wrong row-major metadata (snake order?)");
+      assert(file.filename === `${String(index + 1).padStart(2, "0")}-slide.${format === "image/png" ? "png" : "jpg"}`, "Wrong export numbering");
+      ctx.drawImage(image, column * width, row * height);
+    } else if (format === "image/png") {
+      const expectedCover = document.createElement("canvas"), actualCover = document.createElement("canvas");
+      drawComposition(expectedCover, art, width, height, fit, options.background);
+      actualCover.width = width; actualCover.height = height;
+      context2d(actualCover).drawImage(image, 0, 0);
+      const a = context2d(actualCover).getImageData(0, 0, width, height).data;
+      const b = context2d(expectedCover).getImageData(0, 0, width, height).data;
+      assert(a.every((v, i) => v === b[i]), "The independent cover framing changed");
+      expectedCover.width = expectedCover.height = actualCover.width = actualCover.height = 1;
+    }
     image.close?.();
   }
   if (format === "image/png") {
-    drawComposition(master, art, width * count, height, fill, options.background);
+    drawComposition(master, art, width * columns, height * rows, fill, options.background);
     const expected = context2d(master).getImageData(0, 0, master.width, master.height).data;
     const actual = ctx.getImageData(0, 0, master.width, master.height).data;
     for (let i = 0; i < expected.length; i++) {
@@ -59,9 +73,16 @@ await test("Landscape artwork → 4:5; two seamless slides", () => checkSequence
 await test("Portrait artwork → 1:1; five seamless slides", () => checkSequence(300, 700, 108, 108, 5, false));
 await test("Custom 9:16 outside feed range still exports", () => checkSequence(300, 700, 90, 160, 3, false));
 await test("JPEG encoding and dimensions; cover + three details", () => checkSequence(400, 400, 108, 144, 3, true, "image/jpeg"));
+for (const [columns, rows] of [[3, 1], [3, 2], [3, 3], [2, 2]]) {
+  await test(`${columns}×${rows} grid, with and without cover: all PNG pixels reconstruct the master in reading order`, async () => {
+    for (const cover of [false, true]) await checkSequence(403, 577, 109, 147, columns, cover, "image/png", rows);
+  });
+}
+await test("3×3 at standard 1080 × 1440 tile resolution reconstructs every master pixel", () => checkSequence(900, 1300, 1080, 1440, 3, true, "image/png", 3));
+await test("Multi-row JPEG export keeps row-major order and exact tile dimensions", () => checkSequence(750, 400, 108, 135, 3, false, "image/jpeg", 2));
 await test("PNG and JPEG ZIP filenames, bytes, dimensions and CRC", async () => {
   for (const format of ["image/png", "image/jpeg"]) {
-    const files = await checkSequence(400, 300, 108, 144, 3, true, format);
+    const files = await checkSequence(400, 300, 108, 144, 3, true, format, 2);
     const zip = new Uint8Array(await (await makeZip(files)).arrayBuffer()), view = new DataView(zip.buffer);
     let cursor = 0;
     for (const file of files) {
