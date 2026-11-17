@@ -1,0 +1,18 @@
+{
+  "schema": "paint-studio-palette",
+  "version": 1,
+  "quantityBasis": "Relative model factors. All starter colours are generic screen estimates, not calibrated tubes.",
+  "paints": [
+    {"id":"titanium-white","name":"Titanium White","hex":"#f3f1e7","enabled":true,"isWhite":true,"provenance":{"kind":"generic-estimate","note":"Unmeasured generic sRGB colour; strength defaults to a neutral assumption."}},
+    {"id":"ivory-black","name":"Ivory Black","hex":"#242424","enabled":true,"provenance":{"kind":"generic-estimate"}},
+    {"id":"yellow-ochre","name":"Yellow Ochre","hex":"#b58b32","enabled":true,"provenance":{"kind":"generic-estimate"}},
+    {"id":"yellow","name":"Warm Yellow","hex":"#f3ca21","enabled":true,"provenance":{"kind":"generic-estimate"}},
+    {"id":"warm-red","name":"Warm Red","hex":"#c4422e","enabled":true,"provenance":{"kind":"generic-estimate"}},
+    {"id":"cool-red","name":"Cool Red","hex":"#942644","enabled":true,"provenance":{"kind":"generic-estimate"}},
+    {"id":"ultramarine","name":"Ultramarine Blue","hex":"#283d8d","enabled":true,"provenance":{"kind":"generic-estimate"}},
+    {"id":"phthalo-blue","name":"Phthalo Blue","hex":"#105a70","enabled":true,"provenance":{"kind":"generic-estimate"}},
+    {"id":"burnt-sienna","name":"Burnt Sienna","hex":"#8f492e","enabled":true,"provenance":{"kind":"generic-estimate"}},
+    {"id":"burnt-umber","name":"Burnt Umber","hex":"#514035","enabled":true,"provenance":{"kind":"generic-estimate"}},
+    {"id":"green","name":"Cool Green","hex":"#285b4c","enabled":false,"provenance":{"kind":"generic-estimate"}}
+  ]
+}
