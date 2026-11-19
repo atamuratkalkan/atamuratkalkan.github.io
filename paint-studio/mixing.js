@@ -1,6 +1,6 @@
 import * as vendored from './vendor/spectral-3.0.0.js';
 import { hexToRgb, oklab, labDistance, clamp } from './color.js';
-import { paletteSignature } from './palette.js';
+import { paletteSignature, MAX_PAINTS } from './palette.js';
 
 // The unmodified pinned UMD vendor exposes globalThis.spectral in the browser,
 // and a CommonJS default when these pure modules are exercised by Node.
@@ -58,7 +58,7 @@ export class RecipeSearch {
     if (this.signature === signature && this.bank.length) return;
     const enabled = paints.filter(p => p.enabled);
     if (!enabled.length) throw new Error('Enable at least one paint in My paints.');
-    if (enabled.length > 24) throw new Error('Enable at most 24 paints.');
+    if (enabled.length > MAX_PAINTS) throw new Error(`Enable at most ${MAX_PAINTS} paints.`);
     const bank = [], seen = new Set();
     let processed = 0;
     const total = enabled.length + enabled.length * (enabled.length - 1) / 2 * 35 + enabled.length * (enabled.length - 1) * (enabled.length - 2) / 6 * 10;

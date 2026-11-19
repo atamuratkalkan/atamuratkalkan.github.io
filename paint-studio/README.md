@@ -74,7 +74,8 @@ available mix**. This heuristic is not proof that a target is physically
 out-of-gamut, nor is the distance a probability of accuracy. Forward evaluation
 and cached tube combinations are deterministic. Paint edits invalidate the bank;
 up to 256 target searches are cached within the worker. The palette supports
-32 records, of which at most 24 may be enabled to bound enumeration cost.
+32 records and up to 32 enabled tubes. The worker remains cancellable and caches
+the prepared combinations; using fewer tubes reduces the initial search time.
 
 Real pigment chemistry, brand, strength, scattering, knife loading, ground,
 lighting and drying differ. Test a small pile. No exact grams, millilitres,
@@ -168,9 +169,39 @@ No VS Code or terminal required for routine edits:
    the enclosing `paints` array. Use the repository's normal review/commit flow.
 6. After publication, a new browser starts with the updated defaults. An existing
    locally edited inventory or saved project's snapshot deliberately takes
-   precedence. To replace it, use **My paints → Import** with your updated palette
-   JSON, or edit inside the tool and export your own palette. This prevents a
-   future default-file edit from overwriting your personal tube list.
+   precedence. The exact untouched original generic starter is upgraded to the
+   researched palette; any edits prevent automatic replacement. To replace an
+   edited inventory, export a backup, then use **My paints → Load researched
+   palette → Replace current palette**, or Import an updated palette JSON.
+   Saved studies retain their own snapshots. This prevents a default-file edit
+   from overwriting your personal tube list.
+
+## Researched starter palette — 19 November 2026
+
+The default inventory contains the 26 colour names supplied by Ata. Nine boesner
+Öl Studio identities and Van Gogh Sèvres Blue were confirmed by Ata. Other tube
+brands/formulations remain null: their provenance names the closest catalogue
+reference, not a confirmed owned product. Colours shared by different brands
+remain separate entries (including boesner Echtgelb Zitron and Lemon Yellow).
+
+All colours are uncalibrated website approximations, **not measured tube data**.
+For boesner and Winton image swatches, each channel is the median of the central
+50% × 50% region after conversion to sRGB. Van Gogh estimates use the product
+page's named CSS colour swatches. No external image or service is loaded by the
+running app. Each entry preserves its source, swatch URL, method, date and named
+reference through palette/project export and import.
+
+- [boesner Öl Studio colour selector](https://www.boesner.com/oel-studio-11044?number=A036666_STK): the nine actual website swatches; pigment codes remain unknown.
+- [Winton technical table](https://eu.winsornewton.com/pages/winton-oil-colour) and individual Winton product swatches: named references only where tube identity is unconfirmed.
+- [Van Gogh product page](https://www.royaltalens.com/products/van-gogh-oil-colour-tube-60-ml) named CSS swatches and [manufacturer colour chart](https://www.jerrysartarama.com/media/pdfs/royal-talens/van-gogh-oil-color-chart.pdf): Sèvres Blue 530; Phthalo Green 675 and Alizarin Crimson 326 are references with unconfirmed tube brands.
+
+Cerulean Blue, Chrome Green and Vermilion use the named Winton **Hue** references;
+those references must not be confused with genuine pigments. Dioxazine is treated
+as Dioxazine Blue, following the original list. Alizarin Crimson is **not** silently
+substituted with Permanent Alizarin Crimson. Reference pigment codes are kept
+separate from the actual `pigments` field unless the tube identity is confirmed.
+The mixer still estimates spectra from `hex`; pigment-code records do not change
+the optical model. Tinting strength remains the neutral assumption of 1.
 
 Minimal record:
 
@@ -191,6 +222,13 @@ measurement. Extensible `calibration` may preserve source/method/note and 38
 positive reflectance samples; model integration of such records is future work.
 
 ## Modules & checks
+
+Palette update verified on 19 November 2026: 15 Paint Studio core checks and
+7 Carousel core regression checks passed. All 15 Paint Studio browser checks
+passed in Chromium 157, including actual workers, 26 enabled paints, palette
+replacement/cancellation, project and inventory round trips, and responsive
+1600/768/390 px layouts. Source links are HTTPS-only. Physical colour accuracy
+and real mobile devices are not validated by these screen-based checks.
 
 - `app.js`: UI/file lifecycle, accessible controls, worker orchestration.
 - `image.js`, `viewport.js`, `viewer.js`: local decoding, coordinate transforms,

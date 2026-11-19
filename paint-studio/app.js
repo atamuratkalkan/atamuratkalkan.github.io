@@ -1,5 +1,5 @@
 import { clamp, samplePixels, valueRGB, rgbToHex, colorDistance } from './color.js';
-import { validatePalette, paletteFile, paletteSignature } from './palette.js';
+import { validatePalette, paletteFile, paletteSignature, selectInitialPalette } from './palette.js';
 import { DEFAULT_SETTINGS, validateSettings, applyManualMerge, regionAt, stagePixels } from './segmentation.js';
 import { forwardMix, recipeInstructions } from './mixing.js';
 import { decodeReference, referenceFromRecord, analysisImage, disposeReference, sampleReferenceFile } from './image.js';
@@ -14,6 +14,7 @@ const state = { reference: null, analysis: null, paints: [], settings: { ...DEFA
   focalPoints: [], stageIndex: 0, mode: 'original', values: false, interaction: 'pick',
   selection: null, recipe: null, recipes: [], picks: [], favorites: [], projectId: uid(), projectName: 'Untitled study' };
 let imageVersion = 0, stageVersion = 0, printVersion = 0, paletteSaveTimer, sampleCache = new WeakMap();
+let researchedPaints = [];
 const jobs = new Map();
 function announce(message, error = false) { $('status').textContent = message; $('status').classList.toggle('is-error', error); }
 function job(kind, value, message) {
@@ -121,7 +122,14 @@ function renderPalette() {
       input.addEventListener('change', () => change(key, type === 'number' ? Number(input.value) : input.value, input));
       field.append(input); details.append(field);
     }
-    details.append(textElement('p', `${paint.provenance.kind}. ${paint.calibration ? 'Calibration record preserved; forward mixing still uses the estimated swatch.' : 'No measured spectra.'}`, 'small-note'));
+    details.append(textElement('p', `${paint.provenance.kind}. ${paint.provenance.note} ${paint.calibration ? 'Calibration record preserved; forward mixing still uses the estimated swatch.' : 'No measured spectra.'}`, 'small-note'));
+    if (paint.provenance.reference) details.append(textElement('p', `Catalogue reference: ${paint.provenance.reference}`, 'small-note'));
+    if (paint.provenance.referencePigments) details.append(textElement('p', `Reference pigments (not a verified tube formula): ${paint.provenance.referencePigments}`, 'small-note'));
+    if (paint.provenance.method) details.append(textElement('p', paint.provenance.method, 'small-note'));
+    for (const [key, title] of [['source', 'Colour reference source'], ['pigmentSource', 'Reference pigment source']]) if (paint.provenance[key]) {
+      const link = textElement('a', title); link.href = paint.provenance[key];
+      details.append(link);
+    }
     const remove = textElement('button', 'Remove tube'); remove.type = 'button';
     remove.addEventListener('click', () => { if (state.paints.length === 1) return announce('Keep at least one paint entry, or import another palette.', true); state.paints = state.paints.filter(p => p.id !== paint.id); renderPalette(); paletteChanged(); });
     details.append(remove); entry.append(details); list.append(entry);
@@ -398,6 +406,12 @@ $('project-file').addEventListener('change', safe(async () => { const file = $('
 $('import-palette').addEventListener('click', () => $('palette-file').click());
 $('palette-file').addEventListener('change', safe(async () => { const file = $('palette-file').files[0]; $('palette-file').value = ''; if (file) { const raw = await readJSON(file, 1024 ** 2); if (raw.version && raw.version !== 1) throw new Error('Unsupported palette version.'); state.paints = validatePalette(raw); renderPalette(); paletteChanged(); announce('Palette imported. Only enabled tubes will be used.'); } }));
 $('export-palette').addEventListener('click', safe(() => downloadJSON(paletteFile(state.paints), 'my-paints.json')));
+$('load-researched-palette').addEventListener('click', () => $('palette-dialog').showModal());
+$('apply-researched-palette').addEventListener('click', safe(() => {
+  state.paints = validatePalette(structuredClone(researchedPaints));
+  renderPalette(); paletteChanged();
+  announce(`Researched palette loaded: ${state.paints.length} website colour estimates. Test physical mixes before painting.`);
+}));
 $('add-paint').addEventListener('click', safe(() => {
   if (state.paints.length >= 32) throw new Error('A palette can contain at most 32 paints.');
   state.paints = validatePalette([...state.paints, { id: `custom-${uid()}`, name: 'My new paint', hex: '#80715a', enabled: false, provenance: { kind: 'user-estimate', note: 'Add your actual tube information. This starting swatch is not a measurement.' } }]);
@@ -430,15 +444,17 @@ $('export-stage').addEventListener('click', safe(() => exportStage(state.plan, s
 $('print-sheet').addEventListener('click', safe(printReference));
 $('cancel-job').addEventListener('click', () => { stageVersion++; stageJob.cancel(); mixJob.cancel(); printVersion++; jobs.clear(); finishJob('all', 'Processing cancelled. Your current reference and completed stages are unchanged.'); if (state.selection && !state.recipe) { $('match-state').textContent = 'Search cancelled. Tap the image again to find a mix.'; $('mix-hex').textContent = '—'; } syncAvailability(); });
 $('help-open').addEventListener('click', () => $('help-dialog').showModal());
-for (const id of ['help-dialog', 'projects-dialog']) $(id).addEventListener('click', event => { if (event.target === $(id)) { const r = $(id).getBoundingClientRect(); if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) $(id).close(); } });
+for (const id of ['help-dialog', 'projects-dialog', 'palette-dialog']) $(id).addEventListener('click', event => { if (event.target === $(id)) { const r = $(id).getBoundingClientRect(); if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) $(id).close(); } });
 window.addEventListener('pagehide', () => { stageJob.destroy(); mixJob.destroy(); releaseDownloads(); });
 window.addEventListener('pageshow', event => { if (event.persisted) showScene(); });
 if (matchMedia('(max-width: 720px)').matches) $('plan-panel').open = false;
 
 try {
-  const response = await fetch('data/paints.json');
+  const response = await fetch('data/paints.json', { cache: 'no-cache' });
   if (!response.ok) throw new Error('Could not load the starter paint inventory. Serve this folder through HTTP.');
-  state.paints = validatePalette(await response.json());
-  try { const saved = await storage.loadInventory(); if (saved) state.paints = validatePalette(saved); } catch (error) { fail(error); }
+  researchedPaints = validatePalette(await response.json());
+  state.paints = structuredClone(researchedPaints);
+  try { state.paints = selectInitialPalette(researchedPaints, await storage.loadInventory()); } catch (error) { fail(error); }
+  $('load-researched-palette').disabled = false;
   renderPalette(); writeSettings(); syncAvailability(); renderFavorites();
 } catch (error) { fail(error); }
