@@ -52,6 +52,21 @@ try {
   win = frame.contentWindow; doc = frame.contentDocument;
   win.addEventListener('error', event => errors.push(event.message)); win.addEventListener('unhandledrejection', event => errors.push(String(event.reason)));
   captureDownloads();
+  await test('26 researched paints load through a cancellable, accessible replacement dialog', async () => {
+    get('paints-panel').open = true;
+    const before = get('paint-count').textContent;
+    get('load-researched-palette').click(); assert(get('palette-dialog').open);
+    assert(get('palette-dialog').getAttribute('aria-labelledby') === 'palette-title');
+    get('palette-dialog').querySelector('[value=cancel]').click(); assert(!get('palette-dialog').open);
+    assert(get('paint-count').textContent === before, 'Cancel changed the inventory');
+    get('load-researched-palette').click(); get('apply-researched-palette').click();
+    await wait(() => get('paint-count').textContent === '26 available', 'Researched palette did not load');
+    assert(get('paint-list').children.length === 26);
+    const sevres = [...get('paint-list').children].find(e => e.textContent.includes('Sèvres Blue'));
+    assert(sevres.textContent.includes('PB15, PW6') && sevres.textContent.includes('No measured spectra.'));
+    assert(sevres.querySelector('a').href.startsWith('https://www.royaltalens.com/'));
+    get('paints-panel').open = false;
+  });
   await test('Direct static route, private local assets, return link and footer entry', async () => {
     assert(doc.title === 'Paint Studio | Ata Murat Kalkan');
     assert(new URL(doc.querySelector('.studio-header nav a').href).pathname === '/');

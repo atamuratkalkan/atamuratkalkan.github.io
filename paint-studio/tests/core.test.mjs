@@ -1,14 +1,23 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { validatePalette, paletteSignature } from '../palette.js';
+import { validatePalette, paletteSignature, paletteFile, isOriginalStarter, selectInitialPalette, MAX_PAINTS } from '../palette.js';
 import { forwardMix, RecipeSearch, evaluateRecipe, recipeInstructions, simpleParts } from '../mixing.js';
 import { colorDistance, samplePixels, valueRGB } from '../color.js';
 import { generatePlan, stagePixels, focalMask, applyManualMerge, regionsAdjacent, regionAt } from '../segmentation.js';
 import { imageToScreen, screenToImage, initialView, zoomAt, panBy } from '../viewport.js';
 import { encodeLabels, decodeLabels, serializeProject, validateProject } from '../project.js';
 
-const paints = validatePalette(JSON.parse(await readFile(new URL('../data/paints.json', import.meta.url))));
+const researched = validatePalette(JSON.parse(await readFile(new URL('../data/paints.json', import.meta.url))));
+// Stable synthetic inventory for model regression tests, independent of catalogue updates.
+const paints = validatePalette([
+  ['titanium-white', 'Titanium White', '#f3f1e7'], ['ivory-black', 'Ivory Black', '#242424'],
+  ['yellow-ochre', 'Yellow Ochre', '#b58b32'], ['yellow', 'Warm Yellow', '#f3ca21'],
+  ['warm-red', 'Warm Red', '#c4422e'], ['cool-red', 'Cool Red', '#942644'],
+  ['ultramarine', 'Ultramarine Blue', '#283d8d'], ['phthalo-blue', 'Phthalo Blue', '#105a70'],
+  ['burnt-sienna', 'Burnt Sienna', '#8f492e'], ['burnt-umber', 'Burnt Umber', '#514035'],
+  ['green', 'Cool Green', '#285b4c']
+].map(([id, name, hex]) => ({id, name, hex, enabled: id !== 'green', isWhite: id === 'titanium-white', provenance: {kind:'generic-estimate', note: id === 'titanium-white' ? 'Unmeasured generic sRGB colour; strength defaults to a neutral assumption.' : ''}})));
 function fixture(width = 96, height = 72) {
   const data = new Uint8ClampedArray(width * height * 4);
   for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
@@ -48,7 +57,38 @@ test('palette is explicitly estimated; identity stays unknown; custom calibratio
   assert.equal(p.name, '<img onerror=bad>'); assert.equal(p.calibration.reflectance.length, 38);
   assert.throws(() => validatePalette([{ ...p, hex: 'red' }]));
   assert.throws(() => validatePalette([p, p]));
-  assert.throws(() => validatePalette(Array.from({ length: 25 }, (_, i) => ({ ...p, id: `p${i}` }))));
+  assert.throws(() => validatePalette(Array.from({ length: MAX_PAINTS + 1 }, (_, i) => ({ ...p, id: `p${i}` }))));
+});
+test('26 sourced estimates distinguish confirmed tubes from named catalogue references and survive export', () => {
+  assert.equal(researched.length, 26); assert.ok(researched.every(p => p.enabled && p.tintingStrength === 1 && !p.calibration));
+  assert.ok(researched.every(p => p.provenance.kind === 'web-swatch-estimate' && p.provenance.source.startsWith('https:') && p.provenance.swatchSource && p.provenance.method && p.provenance.checked === '2026-11-19'));
+  assert.equal(researched.filter(p => p.brand === 'boesner').length, 9);
+  assert.ok(researched.filter(p => p.brand === 'boesner').every(p => p.series === 'Öl Studio' && !p.pigments && !p.provenance.referencePigments));
+  const sevres = researched.find(p => p.id === 'sevres-blue');
+  assert.equal(sevres.brand, 'Royal Talens'); assert.equal(sevres.pigments, 'PB15, PW6'); assert.equal(sevres.hex, '#2c9abe');
+  assert.ok(researched.filter(p => !p.brand).every(p => !p.series && !p.pigments && p.provenance.referencePigments && p.provenance.pigmentSource));
+  assert.ok(researched.find(p => p.id === 'alizarin-crimson').provenance.reference.includes('Van Gogh'));
+  assert.ok(researched.some(p => p.id === 'boesner-echtgelb-zitron') && researched.some(p => p.id === 'lemon-yellow'));
+  assert.deepEqual(validatePalette(paletteFile(researched)), researched);
+  const unsafe = validatePalette([{ ...sevres, provenance: {kind:'user-estimate',source:'javascript:alert(1)',pigmentSource:'https://user:secret@example.com/'}}])[0];
+  assert.equal(unsafe.provenance.source, undefined); assert.equal(unsafe.provenance.pigmentSource, undefined);
+});
+test('only the untouched original starter upgrades; saved edits and project inventories are preserved', () => {
+  assert.equal(isOriginalStarter(paints), true);
+  assert.deepEqual(selectInitialPalette(researched, null), researched);
+  assert.deepEqual(selectInitialPalette(researched, paints), researched);
+  for (const edit of [{name:'My white'}, {hex:'#ffffff'}, {enabled:false}, {brand:'My brand'}, {pigments:'PW6'}, {tintingStrength:1.2}, {calibration:{source:'measured by user'}}, {provenance:{kind:'user-estimate',note:'My note'}}]) {
+    const saved = validatePalette(paints.map((p, i) => i ? p : {...p,...edit}));
+    assert.equal(isOriginalStarter(saved), false); assert.deepEqual(selectInitialPalette(researched, saved), saved);
+  }
+});
+test('the full 26-colour inventory mixes, cancels and caches without the old 24-tube limit', async () => {
+  const engine = new RecipeSearch(), target = [123, 117, 92], results = await engine.search(researched, target);
+  assert.ok(results.length && results.every(r => r.ids.length <= 3));
+  for (const r of results) assert.deepEqual(r.rgb, forwardMix(researched, r.ids, r.parts).rgb);
+  assert.deepEqual(await engine.search(researched, target), results);
+  const full = validatePalette(Array.from({length:32}, (_,i)=>({...researched[i%26],id:`tube-${i}`})));
+  await assert.rejects(() => new RecipeSearch().search(full,target,{cancelled:()=>true}), {name:'AbortError'});
 });
 test('point and small-area sampling average linear light, including edges', () => {
   const rgb = samplePixels(new Uint8ClampedArray([0, 0, 0, 255, 255, 255, 255, 255]), 2, 1, 0, 0, 1);
